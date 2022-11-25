@@ -4,6 +4,9 @@ plugins {
 
 android {
     compileSdk 32
+    packagingOptions {
+        resources.excludes.add("META-INF/*")
+    }
 
     defaultConfig {
         applicationId "com.example.projetfinal"
@@ -35,4 +38,13 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+    implementation 'org.knowm.xchange:xchange-stream-bitstamp:5.0.14'
+    implementation 'org.knowm.xchange:xchange-stream-binance:5.0.14'
+    implementation 'org.knowm.xchange:xchange-stream-bitfinex:5.0.14'
+    implementation 'org.knowm.xchange:xchange-stream-coinbasepro:5.0.14'
+    implementation 'org.knowm.xchange:xchange-stream-kraken:5.0.14'
+    implementation 'org.knowm.xchange:xchange-stream-bitflyer:5.0.14'
+    implementation 'org.knowm.xchange:xchange-stream-bitstamp:5.0.14'
+    implementation 'org.knowm.xchange:xchange-stream-coincheck:5.0.14'
+    implementation 'org.knowm.xchange:xchange-stream-gemini:5.0.14'
 }
