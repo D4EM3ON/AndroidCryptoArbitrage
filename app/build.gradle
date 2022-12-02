@@ -25,8 +25,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_9
+        targetCompatibility JavaVersion.VERSION_1_9
     }
 }
 
@@ -38,17 +38,18 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
-    implementation 'org.knowm.xchange:xchange-stream-bitstamp:5.0.14'
-    implementation 'org.knowm.xchange:xchange-bitstamp:5.0.14'
     implementation 'org.knowm.xchange:xchange-stream-binance:5.0.14'
     implementation 'org.knowm.xchange:xchange-binance:5.0.14'
-    implementation 'org.knowm.xchange:xchange-stream-bitfinex:5.0.14'
-    implementation 'org.knowm.xchange:xchange-bitfinex:5.0.14'
     implementation 'org.knowm.xchange:xchange-stream-coinbasepro:5.0.14'
     implementation 'org.knowm.xchange:xchange-coinbasepro:5.0.14'
     implementation 'org.knowm.xchange:xchange-stream-kraken:5.0.14'
-    implementation 'org.knowm.xchange:xchange-stream-bitflyer:5.0.14'
-    implementation 'org.knowm.xchange:xchange-stream-bitstamp:5.0.14'
-    implementation 'org.knowm.xchange:xchange-stream-coincheck:5.0.14'
-    implementation 'org.knowm.xchange:xchange-stream-gemini:5.0.14'
+    implementation 'org.knowm.xchange:xchange-kraken:5.0.14'
+    implementation 'org.knowm.xchange:xchange-stream-gateio:5.0.14'
+    implementation 'org.knowm.xchange:xchange-gateio:5.0.14'
+    implementation 'org.knowm.xchange:xchange-stream-huobi:5.0.14'
+    implementation 'org.knowm.xchange:xchange-huobi:5.0.14'
+
+    implementation 'org.knowm.xchange:xchange-upbit:5.0.14'
+
+
 }

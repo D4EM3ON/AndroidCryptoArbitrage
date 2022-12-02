@@ -9,7 +9,6 @@ import android.util.Log;
 
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
-import org.knowm.xchange.bitstamp.BitstampExchange;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.service.marketdata.MarketDataService;
 
@@ -18,21 +17,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import info.bitrich.xchangestream.bitstamp.v2.BitstampStreamingExchange;
 import info.bitrich.xchangestream.core.StreamingExchange;
 import info.bitrich.xchangestream.core.StreamingExchangeFactory;
 import io.reactivex.disposables.Disposable;
 
 /**
  * The type Main activity.
- * From the top 10 exchanges:
+ * From the top 6 exchanges:
  * Binance
- * Bitfinex - doesnt seem to work for the moment
  * CoinbasePro
- * Kraken
- * bitFlyer
- * Coincheck
- * Gemini
+ * Kraken - you need to pass CurrencyPairParams
+ * GateIO
+ * UpBit
+ * Huobi
  */
 public class MainActivity extends AppCompatActivity {
 
