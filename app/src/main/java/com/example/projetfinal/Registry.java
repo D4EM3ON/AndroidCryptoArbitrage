@@ -4,12 +4,16 @@ import android.util.Log;
 
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
+import org.knowm.xchange.binance.BinanceExchange;
+import org.knowm.xchange.bitfinex.BitfinexExchange;
 import org.knowm.xchange.bitstamp.BitstampExchange;
+import org.knowm.xchange.coinbasepro.CoinbasePro;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.service.marketdata.MarketDataService;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -31,17 +35,25 @@ public class Registry {
 
 
         Executors.newSingleThreadExecutor().execute(() -> {
-            Exchange bitstamp2 = ExchangeFactory.INSTANCE.createExchange(BitstampExchange.class.getName());
+            Exchange binance = ExchangeFactory.INSTANCE.createExchange(CoinbasePro.class.getName());
 
             // Interested in the public market data feed (no authentication)
-            MarketDataService marketDataService = bitstamp2.getMarketDataService();
-            List<CurrencyPair> tickers = bitstamp2.getExchangeSymbols();
+            MarketDataService marketDataService = binance.getMarketDataService();
+
+            try {
+                List<CurrencyPair> tickers = binance.getExchangeSymbols();
+            } catch (Exception e){
+                e.printStackTrace();
+                Log.e("getExchangeSymbols", Arrays.toString(e.getStackTrace()));
+            }
+
 
 
             try {
                 Log.i("MainActivity", String.valueOf(marketDataService.getTickers(null)));
             } catch (IOException e) {
                 e.printStackTrace();
+                Log.e("getTickers", Arrays.toString(e.getStackTrace()));
             }
         });
     }

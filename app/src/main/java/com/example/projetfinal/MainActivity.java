@@ -27,11 +27,10 @@ import io.reactivex.disposables.Disposable;
  * The type Main activity.
  * From the top 10 exchanges:
  * Binance
- * Bitfinex
+ * Bitfinex - doesnt seem to work for the moment
  * CoinbasePro
  * Kraken
  * bitFlyer
- * Bitstamp
  * Coincheck
  * Gemini
  */
