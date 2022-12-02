@@ -39,6 +39,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
     implementation 'org.knowm.xchange:xchange-stream-bitstamp:5.0.14'
+    implementation 'org.knowm.xchange:xchange-bitstamp:5.0.14'
     implementation 'org.knowm.xchange:xchange-stream-binance:5.0.14'
     implementation 'org.knowm.xchange:xchange-stream-bitfinex:5.0.14'
     implementation 'org.knowm.xchange:xchange-stream-coinbasepro:5.0.14'

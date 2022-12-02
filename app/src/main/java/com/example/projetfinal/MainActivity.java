@@ -1,7 +1,9 @@
 package com.example.projetfinal;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -12,6 +14,9 @@ import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.service.marketdata.MarketDataService;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import info.bitrich.xchangestream.bitstamp.v2.BitstampStreamingExchange;
 import info.bitrich.xchangestream.core.StreamingExchange;
@@ -32,36 +37,21 @@ import io.reactivex.disposables.Disposable;
  */
 public class MainActivity extends AppCompatActivity {
 
-    private StreamingExchange bitstamp;
 
-    public MainActivity() throws IOException {
-
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        bitstamp = StreamingExchangeFactory.INSTANCE.createExchange(BitstampStreamingExchange.class);
-        bitstamp.connect().blockingAwait();
-        getAllExchangePrices("BTC");
+        try {
+            Registry registry = new Registry(); // here we would pass the exchanges
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
 
 
-    /**
-     * Gets all the exchange prices for a particular ticker
-     *
-     * @param ticker the ticker - "BTC" or "LTC" or "ETH"
-     * @return the prices
-     */
-    protected boolean getAllExchangePrices(String ticker){
-        Disposable subscription1 = bitstamp.getStreamingMarketDataService()
-                .getTrades(CurrencyPair.BTC_USD)
-                .subscribe(
-                        trade -> Log.i("MainActivity", String.valueOf(trade)),
-                        throwable -> Log.e("MainActivity","Error in trade subscription", throwable));
-        return true;
-    }
+
 }
