@@ -5,10 +5,12 @@ import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.binance.BinanceExchange;
 import org.knowm.xchange.coinbasepro.CoinbaseProExchange;
+import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.gateio.GateioExchange;
@@ -21,6 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -28,19 +31,21 @@ import java.util.concurrent.Executors;
 /**
  * Binance
  * CoinbasePro
- * Kraken - you need to pass CurrencyPairParams
+ * Kraken
  * GateIO
  * UpBit
- * Huobi
  * @author Justin Quirion
  */
 public class Registry {
     private ArrayList<Exchange> exchanges;
     private ArrayList<CurrencyPair> allPairs = null;
+    private ArrayList<TickerWithExchange> gainers;
+    private ArrayList<TickerWithExchange> allTickers = null;
+    private ArrayList<Currency> allCurrencies;
+    private Map<Currency, PossibilitiesPerCurrency> allPossibilities;
 
     /**
      * Instantiates a new Registry.
-     *
      */
     @RequiresApi(api = Build.VERSION_CODES.N)
     public Registry() {
@@ -53,20 +58,19 @@ public class Registry {
             Exchange upbit = ExchangeFactory.INSTANCE.createExchange(UpbitExchange.class.getName());
 
             exchanges = new ArrayList<>(Arrays.asList(binance, coinbasepro, kraken, upbit, gateio));
-
-            allCurrencyPairs(exchanges);
+            getAllCurrencyPairs(exchanges);
 
             boolean isItTopGainers = true;
 
-
+            /*long startTime = System.nanoTime();
+            long endTime = System.nanoTime();
+            long duration = (endTime - startTime)/1000000 / 1000;
+            Log.i("Timer", String.valueOf(duration));
+            */
             try {
-                long startTime = System.nanoTime();
-
-                Log.i("MainActivity", String.valueOf(topGainers(exchanges, isItTopGainers)));
-
-                long endTime = System.nanoTime();
-                long duration = (endTime - startTime)/1000000 / 1000;
-                Log.i("Timer", String.valueOf(duration));
+                gainers = topGainers(exchanges, isItTopGainers);
+                Log.i("Gainers", String.valueOf(gainers));
+                Log.i("ArbitrageAVA", String.valueOf(getArbitrage(exchanges, isItTopGainers, Currency.ETH)[0]));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -79,7 +83,7 @@ public class Registry {
      *
      * @param validExchanges the valid exchanges for which to look for the pairs into
      */
-    protected void allCurrencyPairs(ArrayList<Exchange> validExchanges){
+    protected void getAllCurrencyPairs(ArrayList<Exchange> validExchanges) {
         this.allPairs = new ArrayList<>();
         for (Exchange exchange : validExchanges) {
             ArrayList<CurrencyPair> exchangePairs = (ArrayList<CurrencyPair>) exchange.getExchangeSymbols();
@@ -87,6 +91,134 @@ public class Registry {
         }
     }
 
+    protected void getAllTickers(ArrayList<Exchange> validExchanges) throws IOException {
+        this.allTickers = new ArrayList<>();
+
+        for (Exchange exchange : validExchanges) {
+            CurrencyPairsParam tickerList = new CurrencyPairsParam() {
+                @Override
+                public Collection<CurrencyPair> getCurrencyPairs() {
+                    return exchange.getExchangeSymbols();
+                }
+            };
+
+            for (Ticker ticker : exchange.getMarketDataService().getTickers(tickerList)) {
+                double percentChange;
+                double price;
+
+                try {
+                    percentChange = ticker.getPercentageChange().doubleValue();
+                } catch (NullPointerException e) {
+                    percentChange = ticker.getLow().doubleValue() / ticker.getLast().doubleValue();
+                }
+
+                try {
+                    price = ticker.getLast().doubleValue();
+                } catch (NullPointerException e) {
+                    price = ticker.getLow().doubleValue();
+                }
+
+                Instrument instrument = ticker.getInstrument();
+
+                this.allTickers.add(new TickerWithExchange(instrument, percentChange, exchange, price));
+            }
+        }
+
+    }
+
+    protected ArrayList<Currency> getAllCurrencies(ArrayList<Exchange> validExchanges) {
+        this.allCurrencies = new ArrayList<Currency>();
+        if (this.allPairs == null) {
+            getAllCurrencyPairs(validExchanges);
+        }
+
+        for (CurrencyPair pair : this.allPairs) {
+            this.allCurrencies.add(pair.base);
+        }
+
+        return this.allCurrencies;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public ArrayList<TickerWithExchange>[] getArbitrage(ArrayList<Exchange> validExchanges, boolean top, Currency currencySelected) {
+        ArrayList<TickerWithExchange> opportunities = new ArrayList<>();
+        allPossibilities = new HashMap<>();
+
+        if (this.allTickers == null){
+            try {
+                getAllTickers(validExchanges);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // we build a hashmap for every currency to look for all possibilities
+        for (TickerWithExchange ticker : this.allTickers){
+            CurrencyPair currencyPair = (CurrencyPair) ticker.getInstrument();
+            Currency base = currencyPair.base;
+            Currency counter = currencyPair.counter;
+            // counter.merge(instrument.toString().split("/")[0], 1, Integer::sum);
+            allPossibilities.putIfAbsent(base, new PossibilitiesPerCurrency());
+            allPossibilities.get(base).add(ticker);
+
+            allPossibilities.putIfAbsent(counter, new PossibilitiesPerCurrency());
+            allPossibilities.get(counter).add(ticker);
+        }
+
+        return new ArrayList[]{getTopOpportunities(false, currencySelected), getTopOpportunities(true, currencySelected)};
+    }
+
+    protected ArrayList<TickerWithExchange> getTopOpportunities(boolean top, Currency currencySelected){
+        // currently pretty much works, only thing is sometimes (for current case with ETH), it decides that OAX is worth 0 but still adds it. Needs to check up on that.
+        // Check if price in USD is good! i do not yet know
+
+        ArrayList<TickerWithExchange> topOpportunities = new ArrayList<>(); // we will have 3 at most
+
+        TickerWithExchange minGainer;
+        if (top) { minGainer = new TickerWithExchange(15000d); }
+        else { minGainer = new TickerWithExchange(0d); }
+
+        for (TickerWithExchange ticker : this.allPossibilities.get(currencySelected).getPossibleTickers()){
+            Log.i("Ticker", String.valueOf(ticker) + ", " + String.valueOf(0==ticker.getPrice()));
+            try{
+                ticker.setToUSD(allPossibilities.get(ticker.getBase()).getToUSD().getPrice());
+            } catch (NullPointerException e){
+                continue;
+            }
+
+
+            if (topOpportunities.size() == 3){
+                for (TickerWithExchange opportunity : topOpportunities){
+                    if ((top && minGainer.getPriceInUSD() < opportunity.getPriceInUSD())  || (!top && minGainer.getPriceInUSD() > opportunity.getPriceInUSD())){
+                        minGainer = opportunity;
+                    }
+                }
+            }
+
+            if (topOpportunities.size() < 3){
+                if (ticker.getPrice() != 0){
+                    topOpportunities.add(ticker);
+                    minGainer = ticker;
+                }
+            }
+            else if (ticker.getPrice() != 0 && (top && minGainer.getPriceInUSD() < ticker.getPriceInUSD()) || (!top && minGainer.getPriceInUSD() > ticker.getPriceInUSD())) {
+                topOpportunities.remove(minGainer);
+                topOpportunities.add(ticker);
+
+                minGainer = topOpportunities.get(topOpportunities.size() - 1);
+
+                for (TickerWithExchange opportunity : topOpportunities){
+                    if ((top && minGainer.getPriceInUSD() < opportunity.getPriceInUSD()) || (!top && minGainer.getPriceInUSD() > opportunity.getPriceInUSD())) {
+                        minGainer = opportunity;
+                    }
+                }
+            }
+
+        }
+        Collections.sort(topOpportunities, new TickerWithExchangeComparator());
+        if (!top) Collections.reverse(topOpportunities);
+        return topOpportunities;
+    }
 
     /**
      * Returns an arraylist, with either the highest % gainers, or the lowest % gainers.
@@ -111,57 +243,36 @@ public class Registry {
 
         boolean thereAreFive = false;
 
-        for (Exchange exchange : validExchanges) {
-            CurrencyPairsParam tickerList = new CurrencyPairsParam() {
-                @Override
-                public Collection<CurrencyPair> getCurrencyPairs() {
-                    return exchange.getExchangeSymbols();
-                }
-            };
+        if (this.allTickers == null) {
+            getAllTickers(validExchanges);
+        }
 
-            for (Ticker ticker : exchange.getMarketDataService().getTickers(tickerList)) {
-                double percentChange;
-                double price;
+        for (TickerWithExchange ticker : this.allTickers) {
 
-                try{
-                    percentChange = ticker.getPercentageChange().doubleValue();
-                } catch (NullPointerException e){
-                    percentChange = ticker.getLow().doubleValue() / ticker.getLast().doubleValue();
-                }
+            Instrument instrument = ticker.getInstrument();
+            double percentChange = ticker.getPercentChange();
 
-                try{
-                    price = ticker.getLast().doubleValue();
-                } catch (NullPointerException e){
-                    price = ticker.getLow().doubleValue();
-                }
 
-                Instrument instrument = ticker.getInstrument();
+            counter.merge(instrument.toString().split("/")[0], 1, Integer::sum);
 
-                TickerWithExchange newTicker = new TickerWithExchange(instrument, percentChange, exchange, price);
+            if (!thereAreFive && topGainers.size() >= 5) thereAreFive = true;
 
-                counter.merge(instrument.toString().split("/")[0], 1, Integer::sum);
+            if (!thereAreFive || topGainers.size() < 5) {
 
-                if (!thereAreFive && topGainers.size() >= 5) thereAreFive = true;
+                topGainers.add(ticker);
 
-                if (!thereAreFive || topGainers.size() < 5){
-
-                    topGainers.add(new TickerWithExchange(new CurrencyPair(String.valueOf(instrument)), percentChange, exchange, price));
-
-                    if ((top && minGainer.getPercentChange() > percentChange) || (!top && minGainer.getPercentChange() < percentChange)) {
-                        minGainer = topGainers.get(topGainers.size() - 1);
-                    }
-                }
-
-                else if (thereAreFive && 2 <= counter.get(instrument.toString().split("/")[0]) && ((top && percentChange > minGainer.getPercentChange()) || (!top && percentChange < minGainer.getPercentChange()))) {
-                    topGainers.remove(minGainer);
-                    topGainers.add(new TickerWithExchange(new CurrencyPair(String.valueOf(instrument)), percentChange, exchange, price));
-
+                if ((top && minGainer.getPercentChange() > percentChange) || (!top && minGainer.getPercentChange() < percentChange)) {
                     minGainer = topGainers.get(topGainers.size() - 1);
+                }
+            } else if (thereAreFive && 2 <= counter.get(instrument.toString().split("/")[0]) && ((top && percentChange > minGainer.getPercentChange()) || (!top && percentChange < minGainer.getPercentChange()))) {
+                topGainers.remove(minGainer);
+                topGainers.add(ticker);
 
-                    for (TickerWithExchange topGainer : topGainers){
-                        if ((top && topGainer.getPercentChange() < minGainer.getPercentChange()) || (!top && topGainer.getPercentChange() > minGainer.getPercentChange())) minGainer = topGainer;
-                    }
+                minGainer = topGainers.get(topGainers.size() - 1);
 
+                for (TickerWithExchange topGainer : topGainers) {
+                    if ((top && topGainer.getPercentChange() < minGainer.getPercentChange()) || (!top && topGainer.getPercentChange() > minGainer.getPercentChange()))
+                        minGainer = topGainer;
                 }
 
             }
@@ -169,5 +280,6 @@ public class Registry {
         }
         return topGainers;
     }
+
 
 }
