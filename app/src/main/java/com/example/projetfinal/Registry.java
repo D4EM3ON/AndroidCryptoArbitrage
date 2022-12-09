@@ -179,7 +179,7 @@ public class Registry {
         else { minGainer = new TickerWithExchange(0d); }
 
         for (TickerWithExchange ticker : this.allPossibilities.get(currencySelected).getPossibleTickers()){
-            Log.i("Ticker", String.valueOf(ticker) + ", " + String.valueOf(0==ticker.getPrice()));
+
             try{
                 ticker.setToUSD(allPossibilities.get(ticker.getBase()).getToUSD().getPrice());
             } catch (NullPointerException e){
@@ -201,7 +201,7 @@ public class Registry {
                     minGainer = ticker;
                 }
             }
-            else if (ticker.getPrice() != 0 && (top && minGainer.getPriceInUSD() < ticker.getPriceInUSD()) || (!top && minGainer.getPriceInUSD() > ticker.getPriceInUSD())) {
+            else if (ticker.getPrice() != 0 && (top && minGainer.getPriceInUSD() < ticker.getPriceInUSD() || (!top && minGainer.getPriceInUSD() > ticker.getPriceInUSD()))) {
                 topOpportunities.remove(minGainer);
                 topOpportunities.add(ticker);
 

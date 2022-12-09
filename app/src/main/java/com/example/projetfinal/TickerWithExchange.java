@@ -207,6 +207,7 @@ public class TickerWithExchange {
                 ", percentChange=" + percentChange +
                 ", exchange=" + exchange +
                 ", price=" + price +
+                ", price in USD=" + getPriceInUSD() +
                 '}';
     }
 
