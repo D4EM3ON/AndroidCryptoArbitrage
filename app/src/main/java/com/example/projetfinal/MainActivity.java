@@ -26,24 +26,20 @@ import io.reactivex.disposables.Disposable;
  * From the top 6 exchanges:
  * Binance
  * CoinbasePro
- * Kraken - you need to pass CurrencyPairParams
+ * Kraken
  * GateIO
  * UpBit
- * Huobi
  */
 public class MainActivity extends AppCompatActivity {
 
 
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        try {
-            Registry registry = new Registry(); // here we would pass the exchanges
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Registry registry = new Registry(); // here we would pass the exchanges
     }
 
 
