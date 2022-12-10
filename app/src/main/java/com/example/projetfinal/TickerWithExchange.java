@@ -3,6 +3,7 @@ package com.example.projetfinal;
 import androidx.annotation.NonNull;
 
 import org.knowm.xchange.Exchange;
+import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.CandleStick;
 import org.knowm.xchange.dto.marketdata.CandleStickData;
@@ -23,6 +24,24 @@ public class TickerWithExchange {
     private double percentChange;
     private Exchange exchange;
     private double price;
+    private String name;
+    private double toUSD = 0;
+
+    public double getToUSD() {
+        return toUSD;
+    }
+
+    public void setToUSD(double toUSD) {
+        this.toUSD = toUSD;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     /**
      * Gets candle sticks of the current ticker on the current exchange.
@@ -38,6 +57,14 @@ public class TickerWithExchange {
             data = null;
         }
         return data;
+    }
+
+    public Currency getBase(){
+        return new Currency(this.instrument.toString().split("/")[0]);
+    }
+
+    public Currency getCounter(){
+        return new Currency(this.instrument.toString().split("/")[1]);
     }
 
     /**
@@ -83,6 +110,8 @@ public class TickerWithExchange {
         this.percentChange = percentChange;
         this.exchange = exchange;
         this.price = price;
+        CurrencyPair currencyPair = (CurrencyPair) instrument;
+        this.name = currencyPair.base.getDisplayName();
     }
 
     /**
@@ -94,6 +123,8 @@ public class TickerWithExchange {
         this.instrument = null;
         this.percentChange = percentChange;
         this.exchange = null;
+        this.name = null;
+        this.price = 0d;
     }
 
     /**
@@ -105,8 +136,14 @@ public class TickerWithExchange {
         this.percentChange = ticker.percentChange;
         this.instrument = ticker.instrument;
         this.exchange = ticker.exchange;
+        this.name = ticker.name;
+        this.price = ticker.price;
+        this.toUSD = ticker.toUSD;
     }
 
+    public double getPriceInUSD(){
+        return this.toUSD * this.price;
+    }
 
     /**
      * Gets instrument.
@@ -170,6 +207,7 @@ public class TickerWithExchange {
                 ", percentChange=" + percentChange +
                 ", exchange=" + exchange +
                 ", price=" + price +
+                ", price in USD=" + getPriceInUSD() +
                 '}';
     }
 
@@ -187,4 +225,9 @@ public class TickerWithExchange {
     }
 
 
+    public int compareTo(TickerWithExchange t2) {
+        boolean tf = this.getPriceInUSD() == t2.getPriceInUSD();
+        if (tf) return 0;
+        return 1;
+    }
 }
