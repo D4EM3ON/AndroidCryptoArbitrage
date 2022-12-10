@@ -2,6 +2,8 @@ package com.example.projetfinal;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -32,7 +34,8 @@ import io.reactivex.disposables.Disposable;
  */
 public class MainActivity extends AppCompatActivity {
 
-
+    RecyclerView recyclerViewTop;
+    String[] s1, s2, s3, s4;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -40,6 +43,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Registry registry = new Registry(); // here we would pass the exchanges
+        this.setTitle(R.string.title);
+
+        recyclerViewTop=findViewById(R.id.recyclerViewTop);
+
+        s1 = getResources().getStringArray(R.array.companyAB);
+        s2 = getResources().getStringArray(R.array.company_name);
+        s3 = getResources().getStringArray(R.array.percentage);
+        s4 = getResources().getStringArray(R.array.price);
+
+        MyAdapter myAdapter = new MyAdapter(s1, s2,s3,s4);
+        recyclerViewTop.setAdapter(myAdapter);
+        recyclerViewTop.setLayoutManager(new LinearLayoutManager(this));
+
     }
 
 

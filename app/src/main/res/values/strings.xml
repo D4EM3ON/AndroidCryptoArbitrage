@@ -1,3 +1,30 @@
 <resources>
     <string name="app_name">ProjetFinal</string>
+
+    <string name="title">titre</string>
+
+    <string-array name="companyAB">
+        <item>Abv</item>
+        <item>Abv</item>
+        <item>Abv</item>
+    </string-array>
+
+    <string-array name="company_name">
+        <item>Nom</item>
+        <item>Nom</item>
+        <item>Nom</item>
+    </string-array>
+
+    <string-array name="percentage">
+        <item>Percentage</item>
+        <item>Percentage</item>
+        <item>Percentage</item>
+    </string-array>
+
+    <string-array name="price">
+        <item>price</item>
+        <item>price</item>
+        <item>price</item>
+    </string-array>
+
 </resources>
