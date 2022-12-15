@@ -1,11 +1,9 @@
 package com.example.projetfinal;
 
 import android.os.Build;
-import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.binance.BinanceExchange;
@@ -39,10 +37,9 @@ import java.util.concurrent.Executors;
 public class Registry {
     private ArrayList<Exchange> exchanges;
     private ArrayList<CurrencyPair> allPairs = null;
-    private ArrayList<TickerWithExchange> gainers;
     private ArrayList<TickerWithExchange> allTickers = null;
-    private ArrayList<Currency> allCurrencies;
     private Map<Currency, PossibilitiesPerCurrency> allPossibilities;
+    private Map<Currency, Double> basesToUSD;
 
     /**
      * Instantiates a new Registry.
@@ -59,22 +56,6 @@ public class Registry {
 
             exchanges = new ArrayList<>(Arrays.asList(binance, coinbasepro, kraken, upbit, gateio));
             getAllCurrencyPairs(exchanges);
-
-            boolean isItTopGainers = true;
-
-            /*long startTime = System.nanoTime();
-            long endTime = System.nanoTime();
-            long duration = (endTime - startTime)/1000000 / 1000;
-            Log.i("Timer", String.valueOf(duration));
-            */
-            try {
-                gainers = topGainers(exchanges, isItTopGainers);
-                Log.i("Gainers", String.valueOf(gainers));
-                Log.i("ArbitrageAVA", String.valueOf(getArbitrage(exchanges, isItTopGainers, Currency.ETH)[0]));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
         });
     }
 
@@ -93,6 +74,7 @@ public class Registry {
 
     protected void getAllTickers(ArrayList<Exchange> validExchanges) throws IOException {
         this.allTickers = new ArrayList<>();
+        this.basesToUSD = new HashMap<>();
 
         for (Exchange exchange : validExchanges) {
             CurrencyPairsParam tickerList = new CurrencyPairsParam() {
@@ -118,25 +100,37 @@ public class Registry {
                     price = ticker.getLow().doubleValue();
                 }
 
+                if (price == 0){
+                    continue;
+                }
+
                 Instrument instrument = ticker.getInstrument();
 
-                this.allTickers.add(new TickerWithExchange(instrument, percentChange, exchange, price));
+                TickerWithExchange newTicker = new TickerWithExchange(instrument, percentChange, exchange, price);
+
+                this.allTickers.add(newTicker);
+
+                Currency base = new Currency(instrument.toString().split("/")[0]);
+
+                if (instrument.toString().contains("USD") && instrument.toString().indexOf("USD") > 1 && !basesToUSD.containsKey(base)){
+                    basesToUSD.put(base, price);
+                }
             }
         }
 
     }
 
     protected ArrayList<Currency> getAllCurrencies(ArrayList<Exchange> validExchanges) {
-        this.allCurrencies = new ArrayList<Currency>();
+        ArrayList<Currency> allCurrencies = new ArrayList<Currency>();
         if (this.allPairs == null) {
             getAllCurrencyPairs(validExchanges);
         }
 
         for (CurrencyPair pair : this.allPairs) {
-            this.allCurrencies.add(pair.base);
+            allCurrencies.add(pair.base);
         }
 
-        return this.allCurrencies;
+        return allCurrencies;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -158,16 +152,17 @@ public class Registry {
             Currency base = currencyPair.base;
             Currency counter = currencyPair.counter;
             // counter.merge(instrument.toString().split("/")[0], 1, Integer::sum);
-            allPossibilities.putIfAbsent(base, new PossibilitiesPerCurrency());
+            allPossibilities.putIfAbsent(base, new PossibilitiesPerCurrency(base));
             allPossibilities.get(base).add(ticker);
 
-            allPossibilities.putIfAbsent(counter, new PossibilitiesPerCurrency());
-            allPossibilities.get(counter).add(ticker);
+            // allPossibilities.putIfAbsent(counter, new PossibilitiesPerCurrency(counter));
+            // allPossibilities.get(counter).add(ticker);
         }
 
         return new ArrayList[]{getTopOpportunities(false, currencySelected), getTopOpportunities(true, currencySelected)};
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     protected ArrayList<TickerWithExchange> getTopOpportunities(boolean top, Currency currencySelected){
         // currently pretty much works, only thing is sometimes (for current case with ETH), it decides that OAX is worth 0 but still adds it. Needs to check up on that.
         // Check if price in USD is good! i do not yet know
@@ -179,10 +174,11 @@ public class Registry {
         else { minGainer = new TickerWithExchange(0d); }
 
         for (TickerWithExchange ticker : this.allPossibilities.get(currencySelected).getPossibleTickers()){
-
             try{
-                ticker.setToUSD(allPossibilities.get(ticker.getBase()).getToUSD().getPrice());
+                ticker.setToUSD(basesToUSD.get(ticker.getCounter()));
+
             } catch (NullPointerException e){
+                // Log.i("Error", ticker.toString() + ", " + ticker.getCounter());
                 continue;
             }
 
@@ -215,7 +211,7 @@ public class Registry {
             }
 
         }
-        Collections.sort(topOpportunities, new TickerWithExchangeComparator());
+        topOpportunities.sort((o1, o2) -> Double.compare(o2.getPriceInUSD(), o1.getPriceInUSD()));
         if (!top) Collections.reverse(topOpportunities);
         return topOpportunities;
     }
@@ -278,6 +274,8 @@ public class Registry {
             }
 
         }
+        topGainers.sort((o1, o2) -> Double.compare(o1.getPercentChange(), o2.getPercentChange()));
+        if (top) Collections.reverse(topGainers);
         return topGainers;
     }
 

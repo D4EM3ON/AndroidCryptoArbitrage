@@ -1,14 +1,18 @@
 package com.example.projetfinal;
 
-import com.google.common.base.Ticker;
+import org.knowm.xchange.currency.Currency;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class PossibilitiesPerCurrency {
     private ArrayList<TickerWithExchange> possibleTickers;
     private TickerWithExchange toUSD = null;
+    private Currency currency = null;
 
-    public PossibilitiesPerCurrency(){
+    public PossibilitiesPerCurrency(Currency currency){
+        this.currency = currency;
         possibleTickers = new ArrayList<>();
     }
 

@@ -141,8 +141,9 @@ public class TickerWithExchange {
         this.toUSD = ticker.toUSD;
     }
 
-    public double getPriceInUSD(){
-        return this.toUSD * this.price;
+    public Double getPriceInUSD(){
+
+        return this.price * this.toUSD;
     }
 
     /**
