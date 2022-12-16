@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ArrayList<Integer> validExchanges = new ArrayList<>(Arrays.asList(1,1,1,1,1)); // changer les valid exchanges ici selon les settings.
+        ArrayList<Integer> validExchanges = new ArrayList<>(Arrays.asList(1, 1, 1, 1, 1)); // changer les valid exchanges ici selon les settings.
         // changer les valid exchanges dans le futur:
         // registry.setExchanges(validExchanges) avec validExchanges comme plus haut. dans l'ordre: binance, coinbasepro, kraken, upbit, gateio
 
@@ -75,8 +75,9 @@ public class MainActivity extends AppCompatActivity {
         // percentage : ticker.getPercentage();
 
 
-
-        // tous les currencies possible qu'on peut chercher, symboles, en string
+        // tous les currencies possible qu'on peut chercher, symboles et noms
+        // pour get symboles: allCurrencies.get(index).toString()
+        // pour get noms : allCurrencies.get(index).getDisplayName();
         ArrayList<Currency> allCurrencies = registry.getAllCurrencies();
 
         // 2e page:
