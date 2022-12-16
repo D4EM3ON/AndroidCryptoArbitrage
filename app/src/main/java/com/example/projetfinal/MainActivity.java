@@ -15,6 +15,7 @@ import org.knowm.xchange.currency.Currency;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * The type Main activity.
@@ -28,13 +29,26 @@ import java.util.Arrays;
 public class MainActivity extends AppCompatActivity {
 
     RecyclerView recyclerViewTop;
-    String[] s1, s2, s3, s4;
+    MyAdapter myAdapter;
+
+    List<String> s1, s2, s3, s4;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        s1=new ArrayList<>();
+        s2=new ArrayList<>();
+        s3=new ArrayList<>();
+        s4=new ArrayList<>();
+
+        recyclerViewTop=findViewById(R.id.recyclerViewTop);
+
+        myAdapter = new MyAdapter(s1,s2,s3,s4);
+        recyclerViewTop.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewTop.setAdapter(myAdapter);
 
         ArrayList<Integer> validExchanges = new ArrayList<>(Arrays.asList(1, 1, 1, 1, 1)); // changer les valid exchanges ici selon les settings.
         // changer les valid exchanges dans le futur:
@@ -71,10 +85,44 @@ public class MainActivity extends AppCompatActivity {
         });
 
         highestPercentage.observe(this, e->{
+
+            for(TickerWithExchange ticker:e){
+                s1.add(ticker.getExchange().toString());
+            }
+
+            for(TickerWithExchange ticker:e){
+                s2.add(ticker.getName());
+            }
+
+            for(TickerWithExchange ticker:e){
+                s3.add(Double.toString(ticker.getPercentChange()));
+            }
+
+            for(TickerWithExchange ticker:e){
+                s4.add(Double.toString(ticker.getPrice()));
+            }
+
+
             // do the code to insert the ArrayList<TickerWithExchange> in the 1st recycler view here
         });
 
         lowestPercentage.observe(this, e->{
+
+            for(TickerWithExchange ticker: e){
+                s1.add(ticker.getExchange().toString());
+            }
+
+            for(TickerWithExchange ticker:e){
+                s2.add(ticker.getName());
+            }
+
+            for(TickerWithExchange ticker:e){
+                s3.add(Double.toString(ticker.getPercentChange()));
+            }
+
+            for(TickerWithExchange ticker:e){
+                s4.add(Double.toString(ticker.getPrice()));
+            }
             // do the code to insert the ArrayList<TickerWithExchange> in the 2nd recycler view here
         });
 
@@ -87,17 +135,6 @@ public class MainActivity extends AppCompatActivity {
         // ArrayList<TickerWithExchange>[] arbitrage = registry.getArbitrage(allCurrencies.get(index));
 
 
-
-        recyclerViewTop=findViewById(R.id.recyclerViewTop);
-
-        s1 = getResources().getStringArray(R.array.companyAB);
-        s2 = getResources().getStringArray(R.array.company_name);
-        s3 = getResources().getStringArray(R.array.percentage);
-        s4 = getResources().getStringArray(R.array.price);
-
-        MyAdapter myAdapter = new MyAdapter(s1, s2,s3,s4);
-        recyclerViewTop.setAdapter(myAdapter);
-        recyclerViewTop.setLayoutManager(new LinearLayoutManager(this));
 
     }
 
