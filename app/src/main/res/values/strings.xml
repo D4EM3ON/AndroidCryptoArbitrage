@@ -2,6 +2,8 @@
     <string name="app_name">ProjetFinal</string>
 
     <string name="title">titre</string>
+    <string name="options">Options</string>
+    <string name="propos">À propos</string>
 
 
 </resources>

@@ -1,14 +1,20 @@
 package com.example.projetfinal;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.widget.Toast;
 
 import org.knowm.xchange.currency.Currency;
 
@@ -32,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
     MyAdapter myAdapter;
 
     List<String> s1, s2, s3, s4;
+
+
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -134,11 +142,38 @@ public class MainActivity extends AppCompatActivity {
         // ArrayList<TickerWithExchange>[] arbitrage = registry.getArbitrage(allCurrencies.get(index));
 
 
+    }
+    //part for menu
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.activity_menu,menu);
+        return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch(item.getItemId()){
+            case R.id.options:
+                Toast.makeText(this,"options", Toast.LENGTH_SHORT).show();
+                //fonction juste en bas
+                openActivity_options();
+                return true;
+            case R.id.propos:
+                //j'ai pas faite de pages pour mais je pourrais
+                Toast.makeText(this,"À propos", Toast.LENGTH_SHORT).show();
+                return true;
+            default: return super.onOptionsItemSelected(item);
 
+        }
 
-
-
+    }
+    //ouvre la page en gros pour options
+    public void openActivity_options()
+    {
+        Intent intent = new Intent(this,Options_activity.class);
+        startActivity(intent);
+    }
+    //part pour menu arrete ici
 }
