@@ -46,10 +46,6 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerViewTop=findViewById(R.id.recyclerViewTop);
 
-        myAdapter = new MyAdapter(s1,s2,s3,s4);
-        recyclerViewTop.setLayoutManager(new LinearLayoutManager(this));
-        recyclerViewTop.setAdapter(myAdapter);
-
         ArrayList<Integer> validExchanges = new ArrayList<>(Arrays.asList(1, 1, 1, 1, 1)); // changer les valid exchanges ici selon les settings.
         // changer les valid exchanges dans le futur:
         // registry.setExchanges(validExchanges) avec validExchanges comme plus haut. dans l'ordre: binance, coinbasepro, kraken, upbit, gateio
@@ -102,6 +98,9 @@ public class MainActivity extends AppCompatActivity {
                 s4.add(Double.toString(ticker.getPrice()));
             }
 
+            myAdapter = new MyAdapter(s1,s2,s3,s4);
+            recyclerViewTop.setLayoutManager(new LinearLayoutManager(this));
+            recyclerViewTop.setAdapter(myAdapter);
 
             // do the code to insert the ArrayList<TickerWithExchange> in the 1st recycler view here
         });
