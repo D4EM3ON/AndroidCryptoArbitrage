@@ -40,42 +40,63 @@ public class Registry {
     private ArrayList<TickerWithExchange> allTickers = null;
     private Map<Currency, PossibilitiesPerCurrency> allPossibilities;
     private Map<Currency, Double> basesToUSD;
-
+    Exchange binance ;
+    Exchange coinbasepro;
+    Exchange kraken;
+    Exchange gateio;
+    Exchange upbit;
     /**
      * Instantiates a new Registry.
      */
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public Registry() {
+    public Registry(ArrayList<Integer> validExchanges) {
 
         Executors.newSingleThreadExecutor().execute(() -> {
-            Exchange binance = ExchangeFactory.INSTANCE.createExchange(BinanceExchange.class.getName());
-            Exchange coinbasepro = ExchangeFactory.INSTANCE.createExchange(CoinbaseProExchange.class.getName());
-            Exchange kraken = ExchangeFactory.INSTANCE.createExchange(KrakenExchange.class.getName());
-            Exchange gateio = ExchangeFactory.INSTANCE.createExchange(GateioExchange.class.getName());
-            Exchange upbit = ExchangeFactory.INSTANCE.createExchange(UpbitExchange.class.getName());
+            binance = ExchangeFactory.INSTANCE.createExchange(BinanceExchange.class.getName());
+            coinbasepro = ExchangeFactory.INSTANCE.createExchange(CoinbaseProExchange.class.getName());
+            kraken = ExchangeFactory.INSTANCE.createExchange(KrakenExchange.class.getName());
+            gateio = ExchangeFactory.INSTANCE.createExchange(GateioExchange.class.getName());
+            upbit = ExchangeFactory.INSTANCE.createExchange(UpbitExchange.class.getName());
 
             exchanges = new ArrayList<>(Arrays.asList(binance, coinbasepro, kraken, upbit, gateio));
+            ArrayList<Exchange> tempList = new ArrayList<>();
+            for (int i = 0; i < exchanges.size(); i++){
+                if (validExchanges.get(i) != 0){
+                    tempList.add(exchanges.get(i));
+                }
+            }
+            exchanges = tempList;
         });
+    }
+
+    public void setExchanges(ArrayList<Integer> validExchanges){
+        exchanges = new ArrayList<>(Arrays.asList(binance, coinbasepro, kraken, upbit, gateio));
+        ArrayList<Exchange> tempList = new ArrayList<>();
+        for (int i = 0; i < exchanges.size(); i++){
+            if (validExchanges.get(i) != 0){
+                tempList.add(exchanges.get(i));
+            }
+        }
+        exchanges = tempList;
     }
 
     /**
      * Updates the private allPairs ArrayList of all available pairs.
      *
-     * @param validExchanges the valid exchanges for which to look for the pairs into
      */
-    protected void getAllCurrencyPairs(ArrayList<Exchange> validExchanges) {
+    protected void getAllCurrencyPairs() {
         this.allPairs = new ArrayList<>();
-        for (Exchange exchange : validExchanges) {
+        for (Exchange exchange : exchanges) {
             ArrayList<CurrencyPair> exchangePairs = (ArrayList<CurrencyPair>) exchange.getExchangeSymbols();
             this.allPairs.addAll(exchangePairs);
         }
     }
 
-    protected void getAllTickers(ArrayList<Exchange> validExchanges) throws IOException {
+    protected void getAllTickers() throws IOException {
         this.allTickers = new ArrayList<>();
         this.basesToUSD = new HashMap<>();
 
-        for (Exchange exchange : validExchanges) {
+        for (Exchange exchange : exchanges) {
             CurrencyPairsParam tickerList = new CurrencyPairsParam() {
                 @Override
                 public Collection<CurrencyPair> getCurrencyPairs() {
@@ -119,14 +140,27 @@ public class Registry {
 
     }
 
-    protected ArrayList<Currency> getAllCurrencies(ArrayList<Exchange> validExchanges) {
-        ArrayList<Currency> allCurrencies = new ArrayList<Currency>();
+    public ArrayList<String> getAllCurrencies() {
+        ArrayList<String> allCurrencies = new ArrayList<>();
         if (this.allPairs == null) {
-            getAllCurrencyPairs(validExchanges);
+            getAllCurrencyPairs();
         }
 
         for (CurrencyPair pair : this.allPairs) {
-            allCurrencies.add(pair.base);
+            allCurrencies.add(pair.base.toString());
+        }
+
+        return allCurrencies;
+    }
+
+    public ArrayList<String> getAllCurrencyNames() {
+        ArrayList<String> allCurrencies = new ArrayList<>();
+        if (this.allPairs == null) {
+            getAllCurrencyPairs();
+        }
+
+        for (CurrencyPair pair : this.allPairs) {
+            allCurrencies.add(pair.base.getDisplayName());
         }
 
         return allCurrencies;
@@ -139,7 +173,7 @@ public class Registry {
 
         if (this.allTickers == null){
             try {
-                getAllTickers(validExchanges);
+                getAllTickers();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -220,14 +254,13 @@ public class Registry {
      * Tickers pair must be present at least in one other exchange.
      * This is what you need to call for homepage. Will return 5 tickers.
      *
-     * @param validExchanges the valid exchanges
      * @param top            if we are looking for highest % change (true) or lowest % change (false)
      * @return the top gainers list
      * @throws IOException the io exception if ever .getTickers does not work (they have worked up to date of project. This was confirmed at 19:41 2022-12-08
      */
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public ArrayList<TickerWithExchange> topGainers(ArrayList<Exchange> validExchanges, boolean top) throws IOException {
+    public ArrayList<TickerWithExchange> topGainers(boolean top) throws IOException {
         ArrayList<TickerWithExchange> topGainers = new ArrayList<>();
         Map<String, Integer> counter = new HashMap<String, Integer>();
 
@@ -239,7 +272,7 @@ public class Registry {
         boolean thereAreFive = false;
 
         if (this.allTickers == null) {
-            getAllTickers(validExchanges);
+            getAllTickers();
         }
 
         for (TickerWithExchange ticker : this.allTickers) {
