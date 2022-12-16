@@ -2,6 +2,7 @@ package com.example.projetfinal;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -9,21 +10,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
-import org.knowm.xchange.Exchange;
-import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.currency.Currency;
-import org.knowm.xchange.currency.CurrencyPair;
-import org.knowm.xchange.service.marketdata.MarketDataService;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import info.bitrich.xchangestream.core.StreamingExchange;
-import info.bitrich.xchangestream.core.StreamingExchangeFactory;
-import io.reactivex.disposables.Disposable;
 
 /**
  * The type Main activity.
@@ -53,18 +44,10 @@ public class MainActivity extends AppCompatActivity {
         this.setTitle(R.string.title);
 
         // dans le 1er recycler view dans le main
-        try {
-            ArrayList<TickerWithExchange> highestPercentage = registry.topGainers(true);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        LiveData<ArrayList<TickerWithExchange>> highestPercentage = registry.getMaxGainers();
 
         // dans le 2e recycler view dans le main
-        try {
-            ArrayList<TickerWithExchange> lowestPercentage = registry.topGainers(false);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        LiveData<ArrayList<TickerWithExchange>> lowestPercentage = registry.getMinGainers();
 
         // POUR UTILISER TickerWithExchange
         // TickerWithExchange ticker = highestPercentage.get(0)
@@ -78,9 +61,30 @@ public class MainActivity extends AppCompatActivity {
         // tous les currencies possible qu'on peut chercher, symboles et noms
         // pour get symboles: allCurrencies.get(index).toString()
         // pour get noms : allCurrencies.get(index).getDisplayName();
-        ArrayList<Currency> allCurrencies = registry.getAllCurrencies();
+        // since it is a LiveData, we want to create default values for start of application (they can be empty) and update them in the observe method.
+        // e will be like what you want to call. So, for allCurrencies, e would be an ArrayList<Currency>
+
+        LiveData<ArrayList<Currency>> allCurrencies = registry.getAllCurrencies();
+
+        allCurrencies.observe(this, e->{
+            // do the code needed for, ie the search bar in here
+        });
+
+        highestPercentage.observe(this, e->{
+            // do the code to insert the ArrayList<TickerWithExchange> in the 1st recycler view here
+        });
+
+        lowestPercentage.observe(this, e->{
+            // do the code to insert the ArrayList<TickerWithExchange> in the 2nd recycler view here
+        });
+
 
         // 2e page:
+        int index = 0;
+        // index gotten from search/click. we can also just take what was clicked on and put
+        // it in getArbitrage
+        // in [0] is the top, in [1] is losers. All are already in order
+        // ArrayList<TickerWithExchange>[] arbitrage = registry.getArbitrage(allCurrencies.get(index));
 
 
 

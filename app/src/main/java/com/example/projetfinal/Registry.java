@@ -3,6 +3,8 @@ package com.example.projetfinal;
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
@@ -24,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 
 /**
@@ -35,12 +38,17 @@ import java.util.concurrent.Executors;
  * @author Justin Quirion
  */
 public class Registry {
-    private ArrayList<Exchange> exchanges;
-    private ArrayList<CurrencyPair> allPairs = null;
-    private ArrayList<TickerWithExchange> allTickers = null;
+    private MutableLiveData<ArrayList<Exchange>> exchanges = new MutableLiveData<>();
+    private MutableLiveData<ArrayList<CurrencyPair>> allPairs = new MutableLiveData<>();
+    private MutableLiveData<ArrayList<TickerWithExchange>> allTickers = new MutableLiveData<>();
     private Map<Currency, PossibilitiesPerCurrency> allPossibilities;
-    private Map<Currency, Double> basesToUSD;
-    Exchange binance ;
+    private MutableLiveData<Map<Currency, Double>> basesToUSD = new MutableLiveData<>();
+    private MutableLiveData<ArrayList<Currency>> allCurrencies = new MutableLiveData<>();
+    private MutableLiveData<ArrayList<TickerWithExchange>> maxGainers = new MutableLiveData<>();
+    private MutableLiveData<ArrayList<TickerWithExchange>> minGainers = new MutableLiveData<>();
+
+
+    Exchange binance;
     Exchange coinbasepro;
     Exchange kraken;
     Exchange gateio;
@@ -51,6 +59,30 @@ public class Registry {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public Registry(ArrayList<Integer> validExchanges) {
 
+        exchanges.observeForever(e -> {
+            try {
+                getAllTickers(e);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            getAllCurrencyPairs(e);
+        });
+
+        allTickers.observeForever(e ->{
+            try {
+                makeTopGainers(e, false);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            try {
+                makeTopGainers(e, true);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
+
+        allPairs.observeForever(this::updateAllCurrencies);
+
         Executors.newSingleThreadExecutor().execute(() -> {
             binance = ExchangeFactory.INSTANCE.createExchange(BinanceExchange.class.getName());
             coinbasepro = ExchangeFactory.INSTANCE.createExchange(CoinbaseProExchange.class.getName());
@@ -58,120 +90,123 @@ public class Registry {
             gateio = ExchangeFactory.INSTANCE.createExchange(GateioExchange.class.getName());
             upbit = ExchangeFactory.INSTANCE.createExchange(UpbitExchange.class.getName());
 
-            exchanges = new ArrayList<>(Arrays.asList(binance, coinbasepro, kraken, upbit, gateio));
+            ArrayList<Exchange> allExchanges = new ArrayList<>(Arrays.asList(binance, coinbasepro, kraken, upbit, gateio));
             ArrayList<Exchange> tempList = new ArrayList<>();
-            for (int i = 0; i < exchanges.size(); i++){
+            for (int i = 0; i < allExchanges.size(); i++){
                 if (validExchanges.get(i) != 0){
-                    tempList.add(exchanges.get(i));
+                    tempList.add(allExchanges.get(i));
                 }
             }
-            exchanges = tempList;
+            exchanges.postValue(tempList);
         });
     }
 
     public void setExchanges(ArrayList<Integer> validExchanges){
-        exchanges = new ArrayList<>(Arrays.asList(binance, coinbasepro, kraken, upbit, gateio));
+        ArrayList<Exchange> allExchanges = new ArrayList<>(Arrays.asList(binance, coinbasepro, kraken, upbit, gateio));
         ArrayList<Exchange> tempList = new ArrayList<>();
-        for (int i = 0; i < exchanges.size(); i++){
+        for (int i = 0; i < allExchanges.size(); i++){
             if (validExchanges.get(i) != 0){
-                tempList.add(exchanges.get(i));
+                tempList.add(allExchanges.get(i));
             }
         }
-        exchanges = tempList;
+        exchanges.postValue(tempList);
     }
 
     /**
      * Updates the private allPairs ArrayList of all available pairs.
      *
      */
-    protected void getAllCurrencyPairs() {
-        this.allPairs = new ArrayList<>();
-        for (Exchange exchange : exchanges) {
+    protected void getAllCurrencyPairs(ArrayList<Exchange> validExchanges) {
+
+        ArrayList<CurrencyPair> tempCurrencies = new ArrayList<>();
+        for (Exchange exchange : validExchanges) {
             ArrayList<CurrencyPair> exchangePairs = (ArrayList<CurrencyPair>) exchange.getExchangeSymbols();
-            this.allPairs.addAll(exchangePairs);
+            tempCurrencies.addAll(exchangePairs);
         }
+        this.allPairs.postValue(tempCurrencies);
     }
 
-    protected void getAllTickers() throws IOException {
-        this.allTickers = new ArrayList<>();
-        this.basesToUSD = new HashMap<>();
+    protected void getAllTickers(ArrayList<Exchange> validExchanges) throws IOException {
+        ArrayList<TickerWithExchange> tempTickers = new ArrayList<>();
+        HashMap<Currency, Double> tempBases = new HashMap<>();
 
-        for (Exchange exchange : exchanges) {
-            CurrencyPairsParam tickerList = new CurrencyPairsParam() {
-                @Override
-                public Collection<CurrencyPair> getCurrencyPairs() {
-                    return exchange.getExchangeSymbols();
-                }
-            };
-
-            for (Ticker ticker : exchange.getMarketDataService().getTickers(tickerList)) {
-                double percentChange;
-                double price;
+        Executors.newSingleThreadExecutor().execute(()->{
+            for (Exchange exchange : validExchanges) {
+                CurrencyPairsParam tickerList = new CurrencyPairsParam() {
+                    @Override
+                    public Collection<CurrencyPair> getCurrencyPairs() {
+                        return exchange.getExchangeSymbols();
+                    }
+                };
 
                 try {
-                    percentChange = ticker.getPercentageChange().doubleValue();
-                } catch (NullPointerException e) {
-                    percentChange = ticker.getLow().doubleValue() / ticker.getLast().doubleValue();
-                }
+                    for (Ticker ticker : exchange.getMarketDataService().getTickers(tickerList)) {
+                        double percentChange;
+                        double price;
 
-                try {
-                    price = ticker.getLast().doubleValue();
-                } catch (NullPointerException e) {
-                    price = ticker.getLow().doubleValue();
-                }
+                        try {
+                            percentChange = ticker.getPercentageChange().doubleValue();
+                        } catch (NullPointerException e) {
+                            percentChange = ticker.getLow().doubleValue() / ticker.getLast().doubleValue();
+                        }
 
-                if (price == 0){
-                    continue;
-                }
+                        try {
+                            price = ticker.getLast().doubleValue();
+                        } catch (NullPointerException e) {
+                            price = ticker.getLow().doubleValue();
+                        }
 
-                Instrument instrument = ticker.getInstrument();
+                        if (price == 0){
+                            continue;
+                        }
 
-                TickerWithExchange newTicker = new TickerWithExchange(instrument, percentChange, exchange, price);
+                        Instrument instrument = ticker.getInstrument();
 
-                this.allTickers.add(newTicker);
+                        TickerWithExchange newTicker = new TickerWithExchange(instrument, percentChange, exchange, price);
 
-                Currency base = new Currency(instrument.toString().split("/")[0]);
+                        tempTickers.add(newTicker);
 
-                if (instrument.toString().contains("USD") && instrument.toString().indexOf("USD") > 1 && !basesToUSD.containsKey(base)){
-                    basesToUSD.put(base, price);
+                        Currency base = new Currency(instrument.toString().split("/")[0]);
+
+                        if (instrument.toString().contains("USD") && instrument.toString().indexOf("USD") > 1 && !tempBases.containsKey(base)){
+                            tempBases.put(base, price);
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-        }
+            this.allTickers.postValue(tempTickers);
+            this.basesToUSD.postValue(tempBases);
+
+        });
 
     }
 
-    public ArrayList<Currency> getAllCurrencies() {
-        ArrayList<Currency> allCurrencies = new ArrayList<>();
-        if (this.allPairs == null) {
-            getAllCurrencyPairs();
-        }
+    private void updateAllCurrencies(ArrayList<CurrencyPair> currencyPairs) {
+        ArrayList<Currency> tempCurrencies = new ArrayList<>();
 
-        for (CurrencyPair pair : this.allPairs) {
-            allCurrencies.add(pair.base);
+        for (CurrencyPair pair : currencyPairs) {
+            tempCurrencies.add(pair.base);
         }
+        this.allCurrencies.postValue(tempCurrencies);
+    }
 
-        return allCurrencies;
+    public LiveData<ArrayList<Currency>> getAllCurrencies(){
+        return this.allCurrencies;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public ArrayList<TickerWithExchange>[] getArbitrage(ArrayList<Exchange> validExchanges, Currency currencySelected) {
+    public ArrayList<TickerWithExchange>[] getArbitrage(Currency currencySelected) {
         ArrayList<TickerWithExchange> opportunities = new ArrayList<>();
-        allPossibilities = new HashMap<>();
-
-        if (this.allTickers == null){
-            try {
-                getAllTickers();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        this.allPossibilities = new HashMap<>();
 
         // we build a hashmap for every currency to look for all possibilities
-        for (TickerWithExchange ticker : this.allTickers){
+        for (TickerWithExchange ticker : Objects.requireNonNull(this.allTickers.getValue())){
             CurrencyPair currencyPair = (CurrencyPair) ticker.getInstrument();
             Currency base = currencyPair.base;
             Currency counter = currencyPair.counter;
-            // counter.merge(instrument.toString().split("/")[0], 1, Integer::sum);
+
             allPossibilities.putIfAbsent(base, new PossibilitiesPerCurrency(base));
             allPossibilities.get(base).add(ticker);
 
@@ -183,7 +218,7 @@ public class Registry {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    protected ArrayList<TickerWithExchange> getTopOpportunities(boolean top, Currency currencySelected){
+    private ArrayList<TickerWithExchange> getTopOpportunities(boolean top, Currency currencySelected){
         // currently pretty much works, only thing is sometimes (for current case with ETH), it decides that OAX is worth 0 but still adds it. Needs to check up on that.
         // Check if price in USD is good! i do not yet know
 
@@ -195,7 +230,7 @@ public class Registry {
 
         for (TickerWithExchange ticker : this.allPossibilities.get(currencySelected).getPossibleTickers()){
             try{
-                ticker.setToUSD(basesToUSD.get(ticker.getCounter()));
+                ticker.setToUSD(basesToUSD.getValue().get(ticker.getCounter()));
 
             } catch (NullPointerException e){
                 // Log.i("Error", ticker.toString() + ", " + ticker.getCounter());
@@ -247,9 +282,11 @@ public class Registry {
      */
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public ArrayList<TickerWithExchange> topGainers(boolean top) throws IOException {
+    public void makeTopGainers(ArrayList<TickerWithExchange> validTickers, boolean top) throws IOException {
         ArrayList<TickerWithExchange> topGainers = new ArrayList<>();
-        Map<String, Integer> counter = new HashMap<String, Integer>();
+
+
+        Map<String, Integer> counter = new HashMap<>();
 
         TickerWithExchange minGainer;
 
@@ -258,11 +295,7 @@ public class Registry {
 
         boolean thereAreFive = false;
 
-        if (this.allTickers == null) {
-            getAllTickers();
-        }
-
-        for (TickerWithExchange ticker : this.allTickers) {
+        for (TickerWithExchange ticker : validTickers) {
 
             Instrument instrument = ticker.getInstrument();
             double percentChange = ticker.getPercentChange();
@@ -294,9 +327,21 @@ public class Registry {
 
         }
         topGainers.sort((o1, o2) -> Double.compare(o1.getPercentChange(), o2.getPercentChange()));
-        if (top) Collections.reverse(topGainers);
-        return topGainers;
+        if (top){
+            Collections.reverse(topGainers);
+            maxGainers.postValue(topGainers);
+        }
+        else{
+            minGainers.postValue(topGainers);
+        }
     }
 
+    public LiveData<ArrayList<TickerWithExchange>> getMaxGainers(){
+        return maxGainers;
+    }
+
+    public LiveData<ArrayList<TickerWithExchange>> getMinGainers(){
+        return minGainers;
+    }
 
 }
