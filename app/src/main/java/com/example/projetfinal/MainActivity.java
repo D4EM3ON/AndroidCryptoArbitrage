@@ -77,10 +77,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         // tous les currencies possible qu'on peut chercher, symboles, en string
-        ArrayList<String> allCurrencies = registry.getAllCurrencies();
+        ArrayList<Currency> allCurrencies = registry.getAllCurrencies();
 
-        // tous les currencies possibles, noms, en string
-        ArrayList<String> allCurrencyNames = registry.getAllCurrencyNames();
+        // 2e page:
 
 
 

@@ -140,27 +140,14 @@ public class Registry {
 
     }
 
-    public ArrayList<String> getAllCurrencies() {
-        ArrayList<String> allCurrencies = new ArrayList<>();
+    public ArrayList<Currency> getAllCurrencies() {
+        ArrayList<Currency> allCurrencies = new ArrayList<>();
         if (this.allPairs == null) {
             getAllCurrencyPairs();
         }
 
         for (CurrencyPair pair : this.allPairs) {
-            allCurrencies.add(pair.base.toString());
-        }
-
-        return allCurrencies;
-    }
-
-    public ArrayList<String> getAllCurrencyNames() {
-        ArrayList<String> allCurrencies = new ArrayList<>();
-        if (this.allPairs == null) {
-            getAllCurrencyPairs();
-        }
-
-        for (CurrencyPair pair : this.allPairs) {
-            allCurrencies.add(pair.base.getDisplayName());
+            allCurrencies.add(pair.base);
         }
 
         return allCurrencies;
