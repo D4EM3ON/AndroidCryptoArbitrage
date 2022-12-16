@@ -39,8 +39,6 @@ public class MainActivity extends AppCompatActivity {
 
     List<String> s1, s2, s3, s4;
 
-
-
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,14 +86,15 @@ public class MainActivity extends AppCompatActivity {
             // do the code needed for, ie the search bar in here
         });
 
+        //Mettres les éléments dans des strings pour le recyclerView top
         highestPercentage.observe(this, e->{
 
             for(TickerWithExchange ticker:e){
-                s1.add(ticker.getExchange().toString());
+                s1.add(ticker.getName());
             }
 
             for(TickerWithExchange ticker:e){
-                s2.add(ticker.getName());
+                s2.add(ticker.getExchange().toString());
             }
 
             for(TickerWithExchange ticker:e){
@@ -113,14 +112,15 @@ public class MainActivity extends AppCompatActivity {
             // do the code to insert the ArrayList<TickerWithExchange> in the 1st recycler view here
         });
 
+        //Mettres les éléments dans des strings pour le recyclerView Low
         lowestPercentage.observe(this, e->{
 
             for(TickerWithExchange ticker: e){
-                s1.add(ticker.getExchange().toString());
+                s1.add(ticker.getName());
             }
 
             for(TickerWithExchange ticker:e){
-                s2.add(ticker.getName());
+                s2.add(ticker.getExchange().toString());
             }
 
             for(TickerWithExchange ticker:e){
@@ -132,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
             }
             // do the code to insert the ArrayList<TickerWithExchange> in the 2nd recycler view here
         });
+
 
 
         // 2e page:

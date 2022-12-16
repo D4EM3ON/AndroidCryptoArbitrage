@@ -51,5 +51,4 @@ dependencies {
 
     implementation 'org.knowm.xchange:xchange-upbit:5.0.14'
 
-
 }

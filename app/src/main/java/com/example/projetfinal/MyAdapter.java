@@ -11,6 +11,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>{
 
+    //s1= abreviation
+    //s2= nom
+    //s3= pourcentage
+    //s4= prix
+
     List<String> s1, s2,s3,s4;
 
     public MyAdapter(List<String> s1, List<String> s2, List<String> s3, List<String> s4){
@@ -31,6 +36,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>{
     }
 
     @Override
+    //éléments du recyclerView selon les list assccié au ticker
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         holder.companyAB.setText(s1.get(position));
         holder.company.setText(s2.get(position));
@@ -40,6 +46,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>{
     }
 
     @Override
+    //faire des recyclerView autant qu'il y a d'éléments s1.
     public int getItemCount() {
         return s1.size();
     }
