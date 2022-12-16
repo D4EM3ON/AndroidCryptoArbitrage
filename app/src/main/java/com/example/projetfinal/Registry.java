@@ -55,7 +55,6 @@ public class Registry {
             Exchange upbit = ExchangeFactory.INSTANCE.createExchange(UpbitExchange.class.getName());
 
             exchanges = new ArrayList<>(Arrays.asList(binance, coinbasepro, kraken, upbit, gateio));
-            getAllCurrencyPairs(exchanges);
         });
     }
 
@@ -134,7 +133,7 @@ public class Registry {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public ArrayList<TickerWithExchange>[] getArbitrage(ArrayList<Exchange> validExchanges, boolean top, Currency currencySelected) {
+    public ArrayList<TickerWithExchange>[] getArbitrage(ArrayList<Exchange> validExchanges, Currency currencySelected) {
         ArrayList<TickerWithExchange> opportunities = new ArrayList<>();
         allPossibilities = new HashMap<>();
 
