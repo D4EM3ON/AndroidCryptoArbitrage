@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -94,7 +95,13 @@ public class MainActivity extends AppCompatActivity {
             }
 
             for(TickerWithExchange ticker:e){
-                s2.add(ticker.getExchange().toString());
+                String temp;
+                String temp2[];
+
+                temp = ticker.getExchange().toString();
+                temp2 = temp.split("#");
+
+                s2.add(temp2[0]);
             }
 
             for(TickerWithExchange ticker:e){
@@ -120,7 +127,13 @@ public class MainActivity extends AppCompatActivity {
             }
 
             for(TickerWithExchange ticker:e){
-                s2.add(ticker.getExchange().toString());
+                String temp;
+                String temp2[];
+
+                temp = ticker.getExchange().toString();
+                temp2 = temp.split("#");
+
+                s2.add(temp2[0]);
             }
 
             for(TickerWithExchange ticker:e){
@@ -132,8 +145,6 @@ public class MainActivity extends AppCompatActivity {
             }
             // do the code to insert the ArrayList<TickerWithExchange> in the 2nd recycler view here
         });
-
-
 
         // 2e page:
         int index = 0;
