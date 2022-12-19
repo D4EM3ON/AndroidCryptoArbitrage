@@ -5,5 +5,12 @@
     <string name="options">Options</string>
     <string name="propos">À propos</string>
 
+    <string name="Binance" translatable="false">Binance</string>
+    <string name="Coinbase" translatable="false">Coinbase</string>
+    <string name="Kraken" translatable="false">Kraken</string>
+    <string name="GateIO" translatable="false">GateIO</string>
+    <string name="UpBit" translatable="false">Upbit</string>
+    <string name="option_Title">Sélection des sites d\'échange possible</string>
+
 
 </resources>

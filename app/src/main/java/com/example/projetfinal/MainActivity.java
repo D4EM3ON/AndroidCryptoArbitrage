@@ -175,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.propos:
                 //j'ai pas faite de pages pour mais je pourrais
                 Toast.makeText(this,"À propos", Toast.LENGTH_SHORT).show();
+                openActivity_AboutMe();
                 return true;
             default: return super.onOptionsItemSelected(item);
 
@@ -185,6 +186,11 @@ public class MainActivity extends AppCompatActivity {
     public void openActivity_options()
     {
         Intent intent = new Intent(this,Options_activity.class);
+        startActivity(intent);
+    }
+    public void openActivity_AboutMe()
+    {
+        Intent intent = new Intent(this,AboutMe_activity.class);
         startActivity(intent);
     }
     //part pour menu arrete ici
