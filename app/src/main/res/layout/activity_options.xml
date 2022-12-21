@@ -118,7 +118,7 @@
             android:id="@+id/button"
             android:layout_width="match_parent"
             android:layout_height="72dp"
-            android:text="Save" />
+            android:text="@string/save" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

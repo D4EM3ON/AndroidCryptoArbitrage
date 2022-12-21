@@ -11,6 +11,7 @@
     <string name="GateIO" translatable="false">GateIO</string>
     <string name="UpBit" translatable="false">Upbit</string>
     <string name="option_Title">Sélection des sites d\'échange possible</string>
+    <string name="save">Sauvegarde</string>
 
 
 </resources>

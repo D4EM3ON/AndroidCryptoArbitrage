@@ -6,17 +6,20 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import java.util.ArrayList;
+import io.vavr.collection.Array;
 
 public class Options_activity extends AppCompatActivity {
 
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     Switch binanceSwitch,coinbaseSwitch,krakenSwitch,gateIoSwitch,upbitSwitch;
+
     public static final String SHARED_PREFS = "SHARED";
     public static final String SWITCH1 = "binance";
     public static final String SWITCH2 = "coinbase";
@@ -39,7 +42,7 @@ public class Options_activity extends AppCompatActivity {
         upbitSwitch = findViewById(R.id.switch5);
         savebutton = (Button) findViewById(R.id.button);
 
-        Intent intent = getIntent();
+
 
 
 
@@ -86,7 +89,9 @@ public class Options_activity extends AppCompatActivity {
         }else{Toast.makeText(getApplicationContext(),"OFF",Toast.LENGTH_SHORT).show();}
     }
     public void saveData(){
+
         SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS,MODE_PRIVATE);
+
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(SWITCH1,binanceSwitch.isChecked());
         editor.putBoolean(SWITCH2,coinbaseSwitch.isChecked());
@@ -94,8 +99,10 @@ public class Options_activity extends AppCompatActivity {
         editor.putBoolean(SWITCH4,gateIoSwitch.isChecked());
         editor.putBoolean(SWITCH5,upbitSwitch.isChecked());
 
+
         editor.apply();
         Toast.makeText(this,"Data saved",Toast.LENGTH_SHORT).show();
+
     }
     public void loadData(){
         SharedPreferences sharedPreferences= getSharedPreferences(SHARED_PREFS,MODE_PRIVATE);
