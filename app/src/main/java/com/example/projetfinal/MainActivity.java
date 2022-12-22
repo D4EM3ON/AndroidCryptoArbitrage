@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import org.knowm.xchange.currency.Currency;
@@ -43,7 +44,8 @@ import io.vavr.collection.Array;
  * Binance
  * CoinbasePro
  * Kraken
- * GateIO
+ * GateIO  ???? idk why
+ *
  * UpBit
  */
 public class MainActivity extends AppCompatActivity {
@@ -56,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     Context context;
     LiveData<ArrayList<TickerWithExchange>> highestPercentage;
     ArrayList<Integer> validExchanges;
-
+    long startTime = System.currentTimeMillis();
     int aa,bb,cc,dd,ee,ff;
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -77,9 +79,6 @@ public class MainActivity extends AppCompatActivity {
          dd = (d) ? 1:0;
         Boolean f = mPreferences.getBoolean(SWITCH5,true);
          ff = (f) ? 1:0;
-        System.out.println(bb);
-        System.out.println(cc);
-        System.out.println(dd);
         s1=new ArrayList<>();
         s2=new ArrayList<>();
         s3=new ArrayList<>();
@@ -87,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerViewTop= findViewById(R.id.recyclerViewTop);
 
-        ArrayList<Integer> validExchanges = new ArrayList<>(Arrays.asList(aa, bb, cc, ff, dd)); // changer les valid exchanges ici selon les settings.
+        validExchanges = new ArrayList<>(Arrays.asList(aa, bb, cc, ff, dd)); // changer les valid exchanges ici selon les settings.
         // changer les valid exchanges dans le futur:
         // registry.setExchanges(validExchanges) avec validExchanges comme plus haut. dans l'ordre: binance, coinbasepro, kraken, upbit, gateio
 
@@ -182,12 +181,24 @@ public class MainActivity extends AppCompatActivity {
             // do the code to insert the ArrayList<TickerWithExchange> in the 2nd recycler view here
 
         });
+
         swipeRefreshLayout = findViewById(R.id.refreshLayout);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                 update();
-                Toast.makeText(context,"Updating", Toast.LENGTH_LONG).show();
+
+                long elapsedTime = System.currentTimeMillis() - startTime;
+                long timeTillNextDisplayChange = 60000 - (elapsedTime % 60000);
+                if( elapsedTime >60000){
+                    update();
+                    Toast.makeText(context,"Updating", Toast.LENGTH_SHORT).show();
+                    swipeRefreshLayout.setRefreshing(false);
+                    startTime =0;
+                }else{
+                    Toast.makeText(context,"wait "+Long.toString(timeTillNextDisplayChange/1000) +"s", Toast.LENGTH_SHORT).show();
+                }
+
+
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -253,8 +264,8 @@ public class MainActivity extends AppCompatActivity {
         s2.clear();
         s3.clear();
         s4.clear();
-        ArrayList<Integer> validExchanges = new ArrayList<>(Arrays.asList(aa, bb, cc, dd, ff));
-        recyclerViewTop.getAdapter().notifyDataSetChanged();
+        validExchanges = new ArrayList<>(Arrays.asList(aa, bb, cc, dd, ff));
+
         Registry registry = null; // here we would pass the exchanges
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             registry = new Registry(validExchanges);
@@ -296,10 +307,11 @@ public class MainActivity extends AppCompatActivity {
             }
 
             myAdapter = new MyAdapter(s1,s2,s3,s4);
-
+            recyclerViewTop.getAdapter().notifyDataSetChanged();
             recyclerViewTop.setLayoutManager(new LinearLayoutManager(this));
             recyclerViewTop.setAdapter(myAdapter);
 
+            Toast.makeText(this,getString(R.string.finish),Toast.LENGTH_SHORT).show();
             // do the code to insert the ArrayList<TickerWithExchange> in the 1st recycler view here
         });
 
