@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
         Boolean f = mPreferences.getBoolean(SWITCH5,true);
         ff = (f) ? 1:0;
 
-        validExchanges = new ArrayList<>(Arrays.asList(aa, bb, cc, dd, ff)); // changer les valid exchanges ici selon les settings.
+        validExchanges = new ArrayList<>(Arrays.asList(aa, bb, cc, ff, dd)); // changer les valid exchanges ici selon les settings.
 
         recyclerViewTop = findViewById(R.id.recyclerViewTop);
 
