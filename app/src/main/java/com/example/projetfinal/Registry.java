@@ -1,6 +1,7 @@
 package com.example.projetfinal;
 
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 import androidx.lifecycle.LiveData;
@@ -42,7 +43,7 @@ public class Registry {
     private MutableLiveData<ArrayList<CurrencyPair>> allPairs = new MutableLiveData<>();
     private MutableLiveData<ArrayList<TickerWithExchange>> allTickers = new MutableLiveData<>();
     private Map<Currency, PossibilitiesPerCurrency> allPossibilities;
-    private MutableLiveData<Map<Currency, Double>> basesToUSD = new MutableLiveData<>();
+    private MutableLiveData<Map<String, Double>> basesToUSD = new MutableLiveData<>();
     private MutableLiveData<ArrayList<Currency>> allCurrencies = new MutableLiveData<>();
     private MutableLiveData<ArrayList<TickerWithExchange>> maxGainers = new MutableLiveData<>();
     private MutableLiveData<ArrayList<TickerWithExchange>> minGainers = new MutableLiveData<>();
@@ -128,7 +129,11 @@ public class Registry {
 
     protected void getAllTickers(ArrayList<Exchange> validExchanges) throws IOException {
         ArrayList<TickerWithExchange> tempTickers = new ArrayList<>();
-        HashMap<Currency, Double> tempBases = new HashMap<>();
+        HashMap<String, Double> tempBases = new HashMap<>();
+
+        tempBases.put(Currency.USDT.toString(), 1d);
+        tempBases.put(Currency.BUSD.toString(), 1d);
+        tempBases.put(Currency.USDC.toString(), 1d);
 
         Executors.newSingleThreadExecutor().execute(()->{
             for (Exchange exchange : validExchanges) {
@@ -169,7 +174,7 @@ public class Registry {
                         Currency base = new Currency(instrument.toString().split("/")[0]);
 
                         if (instrument.toString().contains("USD") && instrument.toString().indexOf("USD") > 1 && !tempBases.containsKey(base)){
-                            tempBases.put(base, price);
+                            tempBases.put(base.toString(), price);
                         }
                     }
                 } catch (IOException e) {
@@ -229,13 +234,12 @@ public class Registry {
         else { minGainer = new TickerWithExchange(0d); }
 
         for (TickerWithExchange ticker : this.allPossibilities.get(currencySelected).getPossibleTickers()){
-            try{
-                ticker.setToUSD(basesToUSD.getValue().get(ticker.getCounter()));
-
-            } catch (NullPointerException e){
+            //try{
+                ticker.setToUSD(basesToUSD.getValue().get(ticker.getCounter().toString()));
+            //}catch (NullPointerException e){
                 // Log.i("Error", ticker.toString() + ", " + ticker.getCounter());
-                continue;
-            }
+                //continue;
+            //}
 
 
             if (topOpportunities.size() == 3){

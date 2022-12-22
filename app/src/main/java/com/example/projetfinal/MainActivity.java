@@ -166,6 +166,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
     //part pour menu arrete ici
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void update(){
         SharedPreferences mPreferences =  getSharedPreferences(SHARED_PREFS,MODE_PRIVATE);
         SharedPreferences.Editor editor = mPreferences.edit();
@@ -225,7 +226,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         //Mettre les éléments dans des ArrayList pour la premiere partie du recyclerView
+        Registry finalRegistry = registry;
         highestPercentage.observe(this, e->{
+            finalRegistry.getArbitrage(Currency.USDT); // to get prices in USD
 
             ArrayList<String> instruments = new ArrayList<>();
             ArrayList<String> exchanges = new ArrayList<>();
@@ -240,6 +243,7 @@ public class MainActivity extends AppCompatActivity {
 
                 percentChanges.add(Double.toString(ticker.getPercentChange()));
 
+                double price = ticker.getPriceInUSD();
                 prices.add(Double.toString(ticker.getPriceInUSD()));
 
                 instrumentNames.add(ticker.getName());
