@@ -27,6 +27,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import androidx.appcompat.widget.SearchView;
 import android.widget.Toast;
 
 import org.knowm.xchange.currency.Currency;
@@ -50,28 +53,36 @@ import io.vavr.collection.Array;
  */
 public class MainActivity extends AppCompatActivity {
 
-    RecyclerView recyclerViewTop = null;
-    MyAdapter myAdapter;
+    private RecyclerView recyclerViewTop = null;
+    private RecyclerView recyclerViewBottom = null;
+    private MyAdapter myAdapterTop, myAdapterBottom;
 
-    ArrayList<String> s1 = null, s2 = null, s3 = null, s4 = null;
-    SwipeRefreshLayout swipeRefreshLayout;
-    Context context;
-    LiveData<ArrayList<TickerWithExchange>> highestPercentage;
-    ArrayList<Integer> validExchanges;
-    long startTime = System.currentTimeMillis();
-    int aa,bb,cc,dd,ee,ff;
+    private ListView listView;
+    private ArrayList<String> name = null;
+    private ArrayAdapter<String> arrayAdapter;
+
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private Context context;
+
+    private LiveData<ArrayList<TickerWithExchange>> highestPercentage;
+    private ArrayList<Integer> validExchanges;
+
+    private long startTime = System.currentTimeMillis();
+    private int aa,bb,cc,dd,ee,ff;
     private LiveData<ArrayList<TickerWithExchange>> lowestPercentage;
     private LiveData<ArrayList<Currency>> allCurrencies;
+
+    Menu activityMenu;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Intent intent = getIntent();
 
         this.setTitle(R.string.title);
-
 
         update();
 
@@ -88,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                     swipeRefreshLayout.setRefreshing(false);
                     startTime =0;
                 }else{
-                    Toast.makeText(context,"wait "+Long.toString(timeTillNextDisplayChange/1000) +"s", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context,"wait "+Long.toString(timeTillNextDisplayChange/ 1000L) +" s", Toast.LENGTH_SHORT).show();
                 }
 
 
@@ -110,6 +121,26 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.activity_menu,menu);
+        //search bar
+        SearchView searchView= (SearchView) menu.findItem(R.id.search).getActionView();
+        searchView.setQueryHint("Search...");
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+
+                arrayAdapter.getFilter().filter(newText);
+
+                return false;
+            }
+        });
+        searchView.setClickable(false);
+        this.activityMenu = menu;
         return true;
     }
 
@@ -117,19 +148,13 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch(item.getItemId()){
             case R.id.options:
-                Toast.makeText(this,"options", Toast.LENGTH_SHORT).show();
-                //fonction juste en bas
                 openActivity_options();
                 return true;
             case R.id.propos:
-                //j'ai pas faite de pages pour mais je pourrais
-                Toast.makeText(this,"À propos", Toast.LENGTH_SHORT).show();
                 openActivity_AboutMe();
                 return true;
             default: return super.onOptionsItemSelected(item);
-
         }
-
     }
     //ouvre la page en gros pour options
     public void openActivity_options()
@@ -160,27 +185,10 @@ public class MainActivity extends AppCompatActivity {
 
         validExchanges = new ArrayList<>(Arrays.asList(aa, bb, cc, dd, ff)); // changer les valid exchanges ici selon les settings.
 
-        if (s1 == null){
-            s1 = new ArrayList<>();
-        }
-        if (s2 == null){
-            s2 = new ArrayList<>();
-        }
-        if (s3 == null){
-            s3 = new ArrayList<>();
-        }
-        if (s4 == null){
-            s4 = new ArrayList<>();
-        }
+        recyclerViewTop = findViewById(R.id.recyclerViewTop);
 
-        if (recyclerViewTop == null){
-            recyclerViewTop = findViewById(R.id.recyclerViewTop);
-        }
+        recyclerViewBottom = findViewById(R.id.recyclerViewBottom);
 
-        s1.clear();
-        s2.clear();
-        s3.clear();
-        s4.clear();
 
         Registry registry = null; // here we would pass the exchanges
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
@@ -196,32 +204,58 @@ public class MainActivity extends AppCompatActivity {
         allCurrencies = registry.getAllCurrencies();
 
         allCurrencies.observe(this, e->{
-            // do the code needed for, ie the search bar in here
+            if (name == null){
+                name = new ArrayList<>();
+            }
+
+            for (Currency currency : e){
+                name.add(currency.toString());
+                name.add(currency.getDisplayName());
+            }
+
+            // search bar
+
+            // ton search bar met juste absolument tout dans un listView, listView qui est dans le recycler. jsp trop pk. On ne veut pas chercher
+            // dans le recyclerview, on veut chercher dans une base de données textes que tu as sous format string
+            // donc quand tu fais ton query, tu veux tout enlever et mettre le list view
+
+            // listView = findViewById(R.id.listview);
+            // arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, name);
+            // listView.setAdapter(arrayAdapter);
+
+            activityMenu.findItem(R.id.search).getActionView().setClickable(true);
         });
+
 
         //Mettre les éléments dans des ArrayList pour la premiere partie du recyclerView
         highestPercentage.observe(this, e->{
 
+            ArrayList<String> instruments = new ArrayList<>();
+            ArrayList<String> exchanges = new ArrayList<>();
+            ArrayList<String> percentChanges = new ArrayList<>();
+            ArrayList<String> prices = new ArrayList<>();
+            ArrayList<String> instrumentNames = new ArrayList<>();
+
             for(TickerWithExchange ticker:e){
-                s1.add(ticker.getName());
+                instruments.add(ticker.getInstrument().toString());
 
                 String temp;
-                String temp2[];
 
-                temp = ticker.getExchange().toString();
-                temp2 = temp.split("#");
+                temp = ticker.getExchange().toString().split("#")[0];
 
-                s2.add(temp2[0]);
+                exchanges.add(temp);
 
-                s3.add(Double.toString(ticker.getPercentChange()));
+                percentChanges.add(Double.toString(ticker.getPercentChange()));
 
-                s4.add(Double.toString(ticker.getPrice()));
+                prices.add(Double.toString(ticker.getPrice()));
+
+                instrumentNames.add(ticker.getName());
             }
 
-            myAdapter = new MyAdapter(s1,s2,s3,s4);
-            recyclerViewTop.getAdapter().notifyDataSetChanged();
+            myAdapterTop = new MyAdapter(instruments, exchanges, percentChanges, prices, instrumentNames);
             recyclerViewTop.setLayoutManager(new LinearLayoutManager(this));
-            recyclerViewTop.setAdapter(myAdapter);
+            recyclerViewTop.setAdapter(myAdapterTop);
+            recyclerViewTop.getAdapter().notifyDataSetChanged();
 
             Toast.makeText(this,getString(R.string.finish),Toast.LENGTH_SHORT).show();
         });
@@ -229,21 +263,32 @@ public class MainActivity extends AppCompatActivity {
         //Mettre les éléments dans des ArrayList pour la deuxieme partie du recyclerView
         lowestPercentage.observe(this, e->{
 
+            ArrayList<String> instruments = new ArrayList<>();
+            ArrayList<String> exchanges = new ArrayList<>();
+            ArrayList<String> percentChanges = new ArrayList<>();
+            ArrayList<String> prices = new ArrayList<>();
+            ArrayList<String> instrumentNames = new ArrayList<>();
+
             for(TickerWithExchange ticker: e){
-                s1.add(ticker.getName());
+                instruments.add(ticker.getInstrument().toString());
 
                 String temp;
-                String temp2[];
 
-                temp = ticker.getExchange().toString();
-                temp2 = temp.split("#");
+                temp = ticker.getExchange().toString().split("#")[0];
 
-                s2.add(temp2[0]);
+                exchanges.add(temp);
 
-                s3.add(Double.toString(ticker.getPercentChange()));
+                percentChanges.add(Double.toString(ticker.getPercentChange()));
 
-                s4.add(Double.toString(ticker.getPrice()));
+                prices.add(Double.toString(ticker.getPrice()));
+
+                instrumentNames.add(ticker.getName());
             }
+
+            myAdapterBottom = new MyAdapter(instruments, exchanges, percentChanges, prices, instrumentNames);
+            recyclerViewBottom.setLayoutManager(new LinearLayoutManager(this));
+            recyclerViewBottom.setAdapter(myAdapterBottom);
+            recyclerViewBottom.getAdapter().notifyDataSetChanged();
         });
     }
 

@@ -4,25 +4,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import java.util.List;
+
+import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>{
 
-    //s1= abreviation
-    //s2= nom
-    //s3= pourcentage
-    //s4= prix
+    ArrayList<String> instruments = null, exchanges = null, percentChanges = null, prices = null, instrumentNames = null;
 
-    List<String> s1, s2,s3,s4;
-
-    public MyAdapter(List<String> s1, List<String> s2, List<String> s3, List<String> s4){
-        this.s1 = s1;
-        this.s2 = s2;
-        this.s3 = s3;
-        this.s4 = s4;
+    public MyAdapter(ArrayList<String> s1, ArrayList<String> s2, ArrayList<String> s3, ArrayList<String> s4, ArrayList<String> s5){
+        this.instruments = s1;
+        this.exchanges = s2;
+        this.percentChanges = s3;
+        this.prices = s4;
+        this.instrumentNames = s5;
     }
 
     @NonNull
@@ -38,29 +35,32 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>{
     @Override
     //éléments du recyclerView selon les list assccié au ticker
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        holder.companyAB.setText(s1.get(position));
-        holder.company.setText(s2.get(position));
-        holder.percentage.setText(s3.get(position));
-        holder.price.setText(s4.get(position));
+        holder.instrument.setText(instruments.get(position));
+        holder.exchange.setText(exchanges.get(position));
+        holder.percentage.setText(percentChanges.get(position));
+        holder.price.setText(prices.get(position));
+        holder.nameCurrency.setText(instrumentNames.get(position));
 
     }
 
     @Override
     //faire des recyclerView autant qu'il y a d'éléments s1.
     public int getItemCount() {
-        return s1.size();
+        return instruments.size();
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView companyAB, company, percentage, price;
+
+        TextView instrument, nameCurrency, percentage, price, exchange;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            companyAB = itemView.findViewById(R.id.companyAB_txt);
-            company = itemView.findViewById(R.id.company_txt);
+            instrument = itemView.findViewById(R.id.instrument);
+            nameCurrency = itemView.findViewById(R.id.nameCurrency);
             percentage = itemView.findViewById(R.id.percentage_txt);
             price = itemView.findViewById(R.id.price_txt);
+            exchange = itemView.findViewById(R.id.exchange);
         }
     }
 }
