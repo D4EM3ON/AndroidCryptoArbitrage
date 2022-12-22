@@ -13,8 +13,8 @@
     <string name="option_Title">Sélection des sites d\'échange possible</string>
     <string name="save">Sauvegarde</string>
     <string name="finish">Mise a jour terminée</string>
-    <string name="percentGainers" translatable="false">Plus haut pourcentage</string>
-    <string name="percentLosers" translatable="false">Plus grande perte</string>
+    <string name="percentGainers">Plus haut pourcentage</string>
+    <string name="percentLosers">Plus grande perte</string>
 
 
 </resources>
