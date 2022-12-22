@@ -1,7 +1,5 @@
 package com.example.projetfinal;
 
-import static android.content.Intent.EXTRA_RETURN_RESULT;
-
 import static com.example.projetfinal.Options_activity.SHARED_PREFS;
 import static com.example.projetfinal.Options_activity.SWITCH1;
 import static com.example.projetfinal.Options_activity.SWITCH2;
@@ -9,16 +7,6 @@ import static com.example.projetfinal.Options_activity.SWITCH3;
 import static com.example.projetfinal.Options_activity.SWITCH4;
 import static com.example.projetfinal.Options_activity.SWITCH5;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.LiveData;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -26,20 +14,23 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import androidx.appcompat.widget.SearchView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.lifecycle.LiveData;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import org.knowm.xchange.currency.Currency;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
-import io.vavr.collection.Array;
 
 /**
  * The type Main activity.
@@ -62,13 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
     private SwipeRefreshLayout swipeRefreshLayout;
 
-    private LiveData<ArrayList<TickerWithExchange>> highestPercentage;
-    private ArrayList<Integer> validExchanges;
-
     private long startTime = System.currentTimeMillis();
-    private int aa,bb,cc,dd,ee,ff;
-    private LiveData<ArrayList<TickerWithExchange>> lowestPercentage;
-    private LiveData<ArrayList<Currency>> allCurrencies;
 
     Menu activityMenu;
 
@@ -104,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         // 2e page:
-        int index = 0;
         // index gotten from search/click. we can also just take what was clicked on and put
         // it in getArbitrage
         // in [0] is the top, in [1] is losers. All are already in order
@@ -170,18 +154,18 @@ public class MainActivity extends AppCompatActivity {
     private void update(){
         SharedPreferences mPreferences =  getSharedPreferences(SHARED_PREFS,MODE_PRIVATE);
         SharedPreferences.Editor editor = mPreferences.edit();
-        Boolean a = mPreferences.getBoolean(SWITCH1,true);
-        aa = (a) ? 1:0;
-        Boolean b = mPreferences.getBoolean(SWITCH2,true);
-        bb = (b) ? 1:0;
-        Boolean c = mPreferences.getBoolean(SWITCH3,true);
-        cc = (c) ? 1:0;
-        Boolean d = mPreferences.getBoolean(SWITCH4,true);
-        dd = (d) ? 1:0;
-        Boolean f = mPreferences.getBoolean(SWITCH5,true);
-        ff = (f) ? 1:0;
+        boolean a = mPreferences.getBoolean(SWITCH1,true);
+        int aa = (a) ? 1 : 0;
+        boolean b = mPreferences.getBoolean(SWITCH2,true);
+        int bb = (b) ? 1 : 0;
+        boolean c = mPreferences.getBoolean(SWITCH3,true);
+        int cc = (c) ? 1 : 0;
+        boolean d = mPreferences.getBoolean(SWITCH4,true);
+        int dd = (d) ? 1 : 0;
+        boolean f = mPreferences.getBoolean(SWITCH5,true);
+        int ff = (f) ? 1 : 0;
 
-        validExchanges = new ArrayList<>(Arrays.asList(aa, bb, cc, ff, dd)); // changer les valid exchanges ici selon les settings.
+        ArrayList<Integer> validExchanges = new ArrayList<>(Arrays.asList(aa, bb, cc, ff, dd)); // changer les valid exchanges ici selon les settings.
 
         recyclerViewTop = findViewById(R.id.recyclerViewTop);
 
@@ -194,12 +178,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // dans la 1ere partie du recycler view dans le main
-        highestPercentage = registry.getMaxGainers();
+        LiveData<ArrayList<TickerWithExchange>> highestPercentage = registry.getMaxGainers();
 
         // dans la 2e partie du recycler view dans le main
-        lowestPercentage = registry.getMinGainers();
+        LiveData<ArrayList<TickerWithExchange>> lowestPercentage = registry.getMinGainers();
 
-        allCurrencies = registry.getAllCurrencies();
+        LiveData<ArrayList<Currency>> allCurrencies = registry.getAllCurrencies();
 
         allCurrencies.observe(this, e->{
             if (name == null){
@@ -242,7 +226,6 @@ public class MainActivity extends AppCompatActivity {
 
                 percentChanges.add(Double.toString(ticker.getPercentChange()));
 
-                double price = ticker.getPriceInUSD();
                 prices.add(Double.toString(ticker.getPriceInUSD()));
 
                 instrumentNames.add(ticker.getName());

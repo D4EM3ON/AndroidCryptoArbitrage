@@ -1,19 +1,15 @@
 package com.example.projetfinal;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import io.vavr.collection.Array;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class Options_activity extends AppCompatActivity {
 
@@ -40,7 +36,7 @@ public class Options_activity extends AppCompatActivity {
         krakenSwitch = findViewById(R.id.switch3);
         gateIoSwitch = findViewById(R.id.switch4);
         upbitSwitch = findViewById(R.id.switch5);
-        savebutton = (Button) findViewById(R.id.button);
+        savebutton = findViewById(R.id.button);
 
 
 

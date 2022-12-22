@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>{
 
-    ArrayList<String> instruments = null, exchanges = null, percentChanges = null, prices = null, instrumentNames = null;
+    ArrayList<String> instruments, exchanges, percentChanges, prices, instrumentNames;
 
     public MyAdapter(ArrayList<String> s1, ArrayList<String> s2, ArrayList<String> s3, ArrayList<String> s4, ArrayList<String> s5){
         this.instruments = s1;
