@@ -9,4 +9,6 @@
     <string name="finish">"Finished updating "</string>
     <string name="percentGainers">Highest percentage gainers</string>
     <string name="percentLosers">Highest percentage losers</string>
+    <string name="buy">To buy</string>
+    <string name="sell">"To sell "</string>
 </resources>

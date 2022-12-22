@@ -1,7 +1,5 @@
 package com.example.projetfinal;
 
-import static android.content.Intent.EXTRA_RETURN_RESULT;
-
 import static com.example.projetfinal.Options_activity.SHARED_PREFS;
 import static com.example.projetfinal.Options_activity.SWITCH1;
 import static com.example.projetfinal.Options_activity.SWITCH2;
@@ -9,84 +7,62 @@ import static com.example.projetfinal.Options_activity.SWITCH3;
 import static com.example.projetfinal.Options_activity.SWITCH4;
 import static com.example.projetfinal.Options_activity.SWITCH5;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
+
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import androidx.appcompat.widget.SearchView;
 import android.widget.Toast;
 
 import org.knowm.xchange.currency.Currency;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
-import io.vavr.collection.Array;
+public class MainActivity2 extends AppCompatActivity {
+    String names;
+    private RecyclerView recyclerViewTop2 = null;
+    private RecyclerView recyclerViewBottom2 = null;
+    private MyAdapter2 myAdapterTop2, myAdapterBottom2;
 
-/**
- * The type Main activity.
- * From the top 5 exchanges:
- * Binance
- * CoinbasePro
- * Kraken
- * GateIO
- * UpBit
- */
-public class MainActivity extends AppCompatActivity {
-
-    private RecyclerView recyclerViewTop = null;
-    private RecyclerView recyclerViewBottom = null;
-    private MyAdapter myAdapterTop, myAdapterBottom;
-
-    private ListView listView;
     private ArrayList<String> name = null;
-    private ArrayAdapter<String> arrayAdapter;
-    private MyAdapter.RecyclerViewClickListener listener;
 
-    private SwipeRefreshLayout swipeRefreshLayout;
 
+    private SwipeRefreshLayout swipeRefreshLayout2;
     private LiveData<ArrayList<TickerWithExchange>> highestPercentage;
     private ArrayList<Integer> validExchanges;
-
     private long startTime = System.currentTimeMillis();
     private int aa,bb,cc,dd,ff;
     private LiveData<ArrayList<TickerWithExchange>> lowestPercentage;
     private LiveData<ArrayList<Currency>> allCurrencies;
-
-    Menu activityMenu;
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    ArrayList[] opportunities;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        setOnClickListener();
+        setContentView(R.layout.activity_main2);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        Bundle extras = getIntent().getExtras();
+        if(extras != null){
+            names = extras.getString("type");
+        }
         Intent intent = getIntent();
 
         this.setTitle(R.string.title);
 
         update();
 
-        swipeRefreshLayout = findViewById(R.id.refreshLayout);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        swipeRefreshLayout2 = findViewById(R.id.refreshLayout2);
+        swipeRefreshLayout2.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
 
@@ -95,89 +71,18 @@ public class MainActivity extends AppCompatActivity {
                 if (elapsedTime > 60000){
                     update();
                     Toast.makeText(getApplicationContext(),"Updating", Toast.LENGTH_SHORT).show();
-                    swipeRefreshLayout.setRefreshing(false);
+                    swipeRefreshLayout2.setRefreshing(false);
                     startTime =0;
                 } else {
                     Toast.makeText(getApplicationContext(),"wait " + Long.toString(timeTillNextDisplayChange/ 1000L) + " s", Toast.LENGTH_SHORT).show();
                 }
 
-                swipeRefreshLayout.setRefreshing(false);
+                swipeRefreshLayout2.setRefreshing(false);
             }
         });
-        // 2e page:
-        int index = 0;
-        // index gotten from search/click. we can also just take what was clicked on and put
-        // it in getArbitrage
-        // in [0] is the top, in [1] is losers. All are already in order
-        // ArrayList<TickerWithExchange>[] arbitrage = registry.getArbitrage(allCurrencies.get(index));
-
 
     }
 
-    private void setOnClickListener() {
-        listener = new MyAdapter.RecyclerViewClickListener() {
-            @Override
-            public void onClicks(View v, int position) {
-                Intent intent = new Intent(getApplicationContext(),MainActivity2.class);
-                intent.putExtra("type",name.get(position));
-                startActivity(intent);
-            }
-        };
-    }
-    //part for menu
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.activity_menu,menu);
-        //search bar
-        SearchView searchView= (SearchView) menu.findItem(R.id.search).getActionView();
-        searchView.setQueryHint("Search...");
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-
-                arrayAdapter.getFilter().filter(newText);
-
-                return false;
-            }
-        });
-        searchView.setClickable(false);
-        this.activityMenu = menu;
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch(item.getItemId()){
-            case R.id.options:
-                openActivity_options();
-                return true;
-            case R.id.propos:
-                openActivity_AboutMe();
-                return true;
-            default: return super.onOptionsItemSelected(item);
-        }
-    }
-    //ouvre la page en gros pour options
-    public void openActivity_options()
-    {
-        Intent intent = new Intent(this,Options_activity.class);
-        startActivity(intent);
-    }
-
-    public void openActivity_AboutMe()
-    {
-        Intent intent = new Intent(this,AboutMe_activity.class);
-        startActivity(intent);
-    }
-    //part pour menu arrete ici
     private void update(){
         SharedPreferences mPreferences =  getSharedPreferences(SHARED_PREFS,MODE_PRIVATE);
         SharedPreferences.Editor editor = mPreferences.edit();
@@ -194,13 +99,13 @@ public class MainActivity extends AppCompatActivity {
 
         validExchanges = new ArrayList<>(Arrays.asList(aa, bb, cc, ff, dd)); // changer les valid exchanges ici selon les settings.
 
-        recyclerViewTop = findViewById(R.id.recyclerViewTop);
+        recyclerViewTop2 = findViewById(R.id.recyclerViewTop2);
 
-        recyclerViewBottom = findViewById(R.id.recyclerViewBottom);
+        recyclerViewBottom2 = findViewById(R.id.recyclerViewBottom2);
 
 
         Registry registry = null; // here we would pass the exchanges
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             registry = new Registry(validExchanges);
         }
 
@@ -211,6 +116,10 @@ public class MainActivity extends AppCompatActivity {
         lowestPercentage = registry.getMinGainers();
 
         allCurrencies = registry.getAllCurrencies();
+        String type = names.toString().split("/")[0];
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+          opportunities =  registry.getArbitrage(new Currency(type));
+        }
 
         allCurrencies.observe(this, e->{
             if (name == null){
@@ -222,19 +131,9 @@ public class MainActivity extends AppCompatActivity {
                 name.add(currency.getDisplayName());
             }
 
-            // search bar
 
-            // ton search bar met juste absolument tout dans un listView, listView qui est dans le recycler. jsp trop pk. On ne veut pas chercher
-            // dans le recyclerview, on veut chercher dans une base de données textes que tu as sous format string
-            // donc quand tu fais ton query, tu veux tout enlever et mettre le list view
 
-            // listView = findViewById(R.id.listview);
-            // arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, name);
-            // listView.setAdapter(arrayAdapter);
-
-            activityMenu.findItem(R.id.search).getActionView().setClickable(true);
         });
-
 
         //Mettre les éléments dans des ArrayList pour la premiere partie du recyclerView
         highestPercentage.observe(this, e->{
@@ -257,10 +156,10 @@ public class MainActivity extends AppCompatActivity {
                 instrumentNames.add(ticker.getName());
             }
 
-            myAdapterTop = new MyAdapter(instruments, exchanges, percentChanges, prices, instrumentNames,listener);
-            recyclerViewTop.setLayoutManager(new LinearLayoutManager(this));
-            recyclerViewTop.setAdapter(myAdapterTop);
-            recyclerViewTop.getAdapter().notifyDataSetChanged();
+            myAdapterTop2 = new MyAdapter2(instruments, exchanges, percentChanges, prices, instrumentNames);
+            recyclerViewTop2.setLayoutManager(new LinearLayoutManager(this));
+            recyclerViewTop2.setAdapter(myAdapterTop2);
+            recyclerViewTop2.getAdapter().notifyDataSetChanged();
 
             Toast.makeText(this,getString(R.string.finish),Toast.LENGTH_SHORT).show();
         });
@@ -286,11 +185,10 @@ public class MainActivity extends AppCompatActivity {
                 instrumentNames.add(ticker.getName());
             }
 
-            myAdapterBottom = new MyAdapter(instruments, exchanges, percentChanges, prices, instrumentNames,listener);
-            recyclerViewBottom.setLayoutManager(new LinearLayoutManager(this));
-            recyclerViewBottom.setAdapter(myAdapterBottom);
-            recyclerViewBottom.getAdapter().notifyDataSetChanged();
+            myAdapterBottom2 = new MyAdapter2(instruments, exchanges, percentChanges, prices, instrumentNames);
+            recyclerViewBottom2.setLayoutManager(new LinearLayoutManager(this));
+            recyclerViewBottom2.setAdapter(myAdapterBottom2);
+            recyclerViewBottom2.getAdapter().notifyDataSetChanged();
         });
     }
-
 }
