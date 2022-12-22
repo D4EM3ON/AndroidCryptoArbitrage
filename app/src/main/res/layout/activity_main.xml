@@ -5,7 +5,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:background="#FFFFFF"
+    android:background="#FFFFFF"
     tools:context=".MainActivity">
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/refreshLayout"
@@ -36,7 +36,7 @@
                             android:id="@+id/titreHighest"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Highest percentage gainers"
+                            android:text="@string/percentGainers"
                             android:textAllCaps="true"
                             android:textSize="24sp"
                             android:textStyle="bold"
@@ -76,7 +76,7 @@
                             android:id="@+id/titreLowest"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Lowest percentage gainers"
+                            android:text="@string/percentLosers"
                             android:textAllCaps="true"
                             android:textSize="24sp"
                             android:textStyle="bold"
@@ -95,9 +95,7 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.core.widget.NestedScrollView>
-</androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+

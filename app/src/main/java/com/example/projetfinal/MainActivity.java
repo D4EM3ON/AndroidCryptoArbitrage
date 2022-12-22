@@ -43,12 +43,11 @@ import io.vavr.collection.Array;
 
 /**
  * The type Main activity.
- * From the top 6 exchanges:
+ * From the top 5 exchanges:
  * Binance
  * CoinbasePro
  * Kraken
- * GateIO  ???? idk why
- *
+ * GateIO
  * UpBit
  */
 public class MainActivity extends AppCompatActivity {
