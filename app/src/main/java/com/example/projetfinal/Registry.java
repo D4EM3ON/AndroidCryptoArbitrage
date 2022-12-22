@@ -214,12 +214,17 @@ public class Registry {
 
             allPossibilities.putIfAbsent(base, new PossibilitiesPerCurrency(base));
             allPossibilities.get(base).add(ticker);
-
-            // allPossibilities.putIfAbsent(counter, new PossibilitiesPerCurrency(counter));
-            // allPossibilities.get(counter).add(ticker);
         }
 
         return new ArrayList[]{getTopOpportunities(false, currencySelected), getTopOpportunities(true, currencySelected)};
+    }
+
+    public double setTickerUSD(TickerWithExchange ticker){
+        try {
+            ticker.setToUSD(basesToUSD.getValue().get(ticker.getCounter().toString()));
+        } catch (NullPointerException ignored){
+        }
+        return ticker.getToUSD();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -234,13 +239,6 @@ public class Registry {
         else { minGainer = new TickerWithExchange(0d); }
 
         for (TickerWithExchange ticker : this.allPossibilities.get(currencySelected).getPossibleTickers()){
-            //try{
-                ticker.setToUSD(basesToUSD.getValue().get(ticker.getCounter().toString()));
-            //}catch (NullPointerException e){
-                // Log.i("Error", ticker.toString() + ", " + ticker.getCounter());
-                //continue;
-            //}
-
 
             if (topOpportunities.size() == 3){
                 for (TickerWithExchange opportunity : topOpportunities){

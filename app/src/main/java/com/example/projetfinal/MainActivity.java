@@ -228,8 +228,6 @@ public class MainActivity extends AppCompatActivity {
         //Mettre les éléments dans des ArrayList pour la premiere partie du recyclerView
         Registry finalRegistry = registry;
         highestPercentage.observe(this, e->{
-            finalRegistry.getArbitrage(Currency.USDT); // to get prices in USD
-
             ArrayList<String> instruments = new ArrayList<>();
             ArrayList<String> exchanges = new ArrayList<>();
             ArrayList<String> percentChanges = new ArrayList<>();
@@ -237,6 +235,7 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<String> instrumentNames = new ArrayList<>();
 
             for(TickerWithExchange ticker:e){
+                ticker.setToUSD(finalRegistry.setTickerUSD(ticker));
                 instruments.add(ticker.getInstrument().toString());
 
                 exchanges.add(ticker.getExchange().toString().split("#")[0]);
@@ -267,6 +266,8 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<String> instrumentNames = new ArrayList<>();
 
             for(TickerWithExchange ticker: e){
+                ticker.setToUSD(finalRegistry.setTickerUSD(ticker));
+
                 instruments.add(ticker.getInstrument().toString());
 
                 exchanges.add(ticker.getExchange().toString().split("#")[0]);
