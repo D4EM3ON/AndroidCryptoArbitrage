@@ -59,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
     private ListView listView;
     private ArrayList<String> name = null;
     private ArrayAdapter<String> arrayAdapter;
-    private MyAdapter.RecyclerViewClickListener listener;
 
     private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -67,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Integer> validExchanges;
 
     private long startTime = System.currentTimeMillis();
-    private int aa,bb,cc,dd,ff;
+    private int aa,bb,cc,dd,ee,ff;
     private LiveData<ArrayList<TickerWithExchange>> lowestPercentage;
     private LiveData<ArrayList<Currency>> allCurrencies;
 
@@ -78,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setOnClickListener();
+
         Intent intent = getIntent();
 
         this.setTitle(R.string.title);
@@ -112,17 +111,6 @@ public class MainActivity extends AppCompatActivity {
         // ArrayList<TickerWithExchange>[] arbitrage = registry.getArbitrage(allCurrencies.get(index));
 
 
-    }
-
-    private void setOnClickListener() {
-        listener = new MyAdapter.RecyclerViewClickListener() {
-            @Override
-            public void onClicks(View v, int position) {
-                Intent intent = new Intent(getApplicationContext(),MainActivity2.class);
-                intent.putExtra("type",name.get(position));
-                startActivity(intent);
-            }
-        };
     }
     //part for menu
 
@@ -257,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
                 instrumentNames.add(ticker.getName());
             }
 
-            myAdapterTop = new MyAdapter(instruments, exchanges, percentChanges, prices, instrumentNames,listener);
+            myAdapterTop = new MyAdapter(instruments, exchanges, percentChanges, prices, instrumentNames);
             recyclerViewTop.setLayoutManager(new LinearLayoutManager(this));
             recyclerViewTop.setAdapter(myAdapterTop);
             recyclerViewTop.getAdapter().notifyDataSetChanged();
@@ -286,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
                 instrumentNames.add(ticker.getName());
             }
 
-            myAdapterBottom = new MyAdapter(instruments, exchanges, percentChanges, prices, instrumentNames,listener);
+            myAdapterBottom = new MyAdapter(instruments, exchanges, percentChanges, prices, instrumentNames);
             recyclerViewBottom.setLayoutManager(new LinearLayoutManager(this));
             recyclerViewBottom.setAdapter(myAdapterBottom);
             recyclerViewBottom.getAdapter().notifyDataSetChanged();

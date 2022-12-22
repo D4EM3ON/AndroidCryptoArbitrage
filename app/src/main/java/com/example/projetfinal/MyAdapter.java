@@ -13,14 +13,13 @@ import androidx.recyclerview.widget.RecyclerView;
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>{
 
     ArrayList<String> instruments = null, exchanges = null, percentChanges = null, prices = null, instrumentNames = null;
-    private RecyclerViewClickListener listener;
-    public MyAdapter(ArrayList<String> s1, ArrayList<String> s2, ArrayList<String> s3, ArrayList<String> s4, ArrayList<String> s5,RecyclerViewClickListener listener){
+
+    public MyAdapter(ArrayList<String> s1, ArrayList<String> s2, ArrayList<String> s3, ArrayList<String> s4, ArrayList<String> s5){
         this.instruments = s1;
         this.exchanges = s2;
         this.percentChanges = s3;
         this.prices = s4;
         this.instrumentNames = s5;
-        this.listener = listener;
     }
 
     @NonNull
@@ -50,7 +49,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>{
         return instruments.size();
     }
 
-    public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class MyViewHolder extends RecyclerView.ViewHolder {
 
         TextView instrument, nameCurrency, percentage, price, exchange;
 
@@ -62,17 +61,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>{
             percentage = itemView.findViewById(R.id.percentage_txt);
             price = itemView.findViewById(R.id.price_txt);
             exchange = itemView.findViewById(R.id.exchange);
-            itemView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View view) {
-            listener.onClicks(view,getAdapterPosition());
-        }
-    }
-    public interface RecyclerViewClickListener{
-         default void onClicks(View v, int position){
-
         }
     }
 }
