@@ -62,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
     private ArrayAdapter<String> arrayAdapter;
 
     private SwipeRefreshLayout swipeRefreshLayout;
-    private Context context;
 
     private LiveData<ArrayList<TickerWithExchange>> highestPercentage;
     private ArrayList<Integer> validExchanges;
@@ -93,15 +92,14 @@ public class MainActivity extends AppCompatActivity {
 
                 long elapsedTime = System.currentTimeMillis() - startTime;
                 long timeTillNextDisplayChange = 60000 - (elapsedTime % 60000);
-                if( elapsedTime >60000){
+                if (elapsedTime > 60000){
                     update();
-                    Toast.makeText(context,"Updating", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),"Updating", Toast.LENGTH_SHORT).show();
                     swipeRefreshLayout.setRefreshing(false);
                     startTime =0;
-                }else{
-                    Toast.makeText(context,"wait "+Long.toString(timeTillNextDisplayChange/ 1000L) +" s", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getApplicationContext(),"wait " + Long.toString(timeTillNextDisplayChange/ 1000L) + " s", Toast.LENGTH_SHORT).show();
                 }
-
 
                 swipeRefreshLayout.setRefreshing(false);
             }
@@ -239,15 +237,11 @@ public class MainActivity extends AppCompatActivity {
             for(TickerWithExchange ticker:e){
                 instruments.add(ticker.getInstrument().toString());
 
-                String temp;
-
-                temp = ticker.getExchange().toString().split("#")[0];
-
-                exchanges.add(temp);
+                exchanges.add(ticker.getExchange().toString().split("#")[0]);
 
                 percentChanges.add(Double.toString(ticker.getPercentChange()));
 
-                prices.add(Double.toString(ticker.getPrice()));
+                prices.add(Double.toString(ticker.getPriceInUSD()));
 
                 instrumentNames.add(ticker.getName());
             }
@@ -272,15 +266,11 @@ public class MainActivity extends AppCompatActivity {
             for(TickerWithExchange ticker: e){
                 instruments.add(ticker.getInstrument().toString());
 
-                String temp;
-
-                temp = ticker.getExchange().toString().split("#")[0];
-
-                exchanges.add(temp);
+                exchanges.add(ticker.getExchange().toString().split("#")[0]);
 
                 percentChanges.add(Double.toString(ticker.getPercentChange()));
 
-                prices.add(Double.toString(ticker.getPrice()));
+                prices.add(Double.toString(ticker.getPriceInUSD()));
 
                 instrumentNames.add(ticker.getName());
             }
