@@ -50,16 +50,19 @@ import io.vavr.collection.Array;
  */
 public class MainActivity extends AppCompatActivity {
 
-    RecyclerView recyclerViewTop;
+    RecyclerView recyclerViewTop = null;
     MyAdapter myAdapter;
 
-    List<String> s1, s2, s3, s4;
+    ArrayList<String> s1 = null, s2 = null, s3 = null, s4 = null;
     SwipeRefreshLayout swipeRefreshLayout;
     Context context;
     LiveData<ArrayList<TickerWithExchange>> highestPercentage;
     ArrayList<Integer> validExchanges;
     long startTime = System.currentTimeMillis();
     int aa,bb,cc,dd,ee,ff;
+    private LiveData<ArrayList<TickerWithExchange>> lowestPercentage;
+    private LiveData<ArrayList<Currency>> allCurrencies;
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,120 +70,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Intent intent = getIntent();
 
-        SharedPreferences mPreferences =  getSharedPreferences(SHARED_PREFS,MODE_PRIVATE);
-        SharedPreferences.Editor editor = mPreferences.edit();
-        Boolean a = mPreferences.getBoolean(SWITCH1,true);
-         aa = (a) ? 1:0;
-        Boolean b = mPreferences.getBoolean(SWITCH2,true);
-         bb = (b) ? 1:0;
-        Boolean c = mPreferences.getBoolean(SWITCH3,true);
-         cc = (c) ? 1:0;
-        Boolean d = mPreferences.getBoolean(SWITCH4,true);
-         dd = (d) ? 1:0;
-        Boolean f = mPreferences.getBoolean(SWITCH5,true);
-         ff = (f) ? 1:0;
-        s1=new ArrayList<>();
-        s2=new ArrayList<>();
-        s3=new ArrayList<>();
-        s4=new ArrayList<>();
-
-        recyclerViewTop= findViewById(R.id.recyclerViewTop);
-
-        validExchanges = new ArrayList<>(Arrays.asList(aa, bb, cc, ff, dd)); // changer les valid exchanges ici selon les settings.
-        // changer les valid exchanges dans le futur:
-        // registry.setExchanges(validExchanges) avec validExchanges comme plus haut. dans l'ordre: binance, coinbasepro, kraken, upbit, gateio
-
-        Registry registry = new Registry(validExchanges); // here we would pass the exchanges
         this.setTitle(R.string.title);
 
-        // dans le 1er recycler view dans le main
-        highestPercentage = registry.getMaxGainers();
 
-        // dans le 2e recycler view dans le main
-        LiveData<ArrayList<TickerWithExchange>> lowestPercentage = registry.getMinGainers();
-
-        // POUR UTILISER TickerWithExchange
-        // TickerWithExchange ticker = highestPercentage.get(0)
-        // nom du exchange : ticker.getExchange().toString();
-        // nom ticker : ticker.getName();
-        // prix : ticker.getPrice();
-        // prix en USD : ticker.getPriceToUSD();
-        // percentage : ticker.getPercentage();
-
-
-        // tous les currencies possible qu'on peut chercher, symboles et noms
-        // pour get symboles: allCurrencies.get(index).toString()
-        // pour get noms : allCurrencies.get(index).getDisplayName();
-        // since it is a LiveData, we want to create default values for start of application (they can be empty) and update them in the observe method.
-        // e will be like what you want to call. So, for allCurrencies, e would be an ArrayList<Currency>
-
-        LiveData<ArrayList<Currency>> allCurrencies = registry.getAllCurrencies();
-
-        allCurrencies.observe(this, e->{
-            // do the code needed for, ie the search bar in here
-        });
-
-        //Mettres les éléments dans des strings pour le recyclerView top
-        highestPercentage.observe(this, e->{
-
-            for(TickerWithExchange ticker:e){
-                s1.add(ticker.getName());
-            }
-
-            for(TickerWithExchange ticker:e){
-                String temp;
-                String temp2[];
-
-                temp = ticker.getExchange().toString();
-                temp2 = temp.split("#");
-
-                s2.add(temp2[0]);
-            }
-
-            for(TickerWithExchange ticker:e){
-                s3.add(Double.toString(ticker.getPercentChange()));
-            }
-
-            for(TickerWithExchange ticker:e){
-                s4.add(Double.toString(ticker.getPrice()));
-            }
-
-            myAdapter = new MyAdapter(s1,s2,s3,s4);
-            recyclerViewTop.setLayoutManager(new LinearLayoutManager(this));
-            context = this;
-            recyclerViewTop.setAdapter(myAdapter);
-
-
-            // do the code to insert the ArrayList<TickerWithExchange> in the 1st recycler view here
-        });
-
-        //Mettres les éléments dans des strings pour le recyclerView Low
-        lowestPercentage.observe(this, e->{
-
-            for(TickerWithExchange ticker: e){
-                s1.add(ticker.getName());
-            }
-
-            for(TickerWithExchange ticker:e){
-                String temp;
-                String temp2[];
-
-                temp = ticker.getExchange().toString();
-                temp2 = temp.split("#");
-
-                s2.add(temp2[0]);
-            }
-
-            for(TickerWithExchange ticker:e){
-                s3.add(Double.toString(ticker.getPercentChange()));
-            }
-
-            for(TickerWithExchange ticker:e){
-                s4.add(Double.toString(ticker.getPrice()));
-            }
-            // do the code to insert the ArrayList<TickerWithExchange> in the 2nd recycler view here
-
-        });
+        update();
 
         swipeRefreshLayout = findViewById(R.id.refreshLayout);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -245,14 +138,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-
-
-
-
-
-
-
-
     public void openActivity_AboutMe()
     {
         Intent intent = new Intent(this,AboutMe_activity.class);
@@ -260,35 +145,66 @@ public class MainActivity extends AppCompatActivity {
     }
     //part pour menu arrete ici
     private void update(){
+        SharedPreferences mPreferences =  getSharedPreferences(SHARED_PREFS,MODE_PRIVATE);
+        SharedPreferences.Editor editor = mPreferences.edit();
+        Boolean a = mPreferences.getBoolean(SWITCH1,true);
+        aa = (a) ? 1:0;
+        Boolean b = mPreferences.getBoolean(SWITCH2,true);
+        bb = (b) ? 1:0;
+        Boolean c = mPreferences.getBoolean(SWITCH3,true);
+        cc = (c) ? 1:0;
+        Boolean d = mPreferences.getBoolean(SWITCH4,true);
+        dd = (d) ? 1:0;
+        Boolean f = mPreferences.getBoolean(SWITCH5,true);
+        ff = (f) ? 1:0;
+
+        validExchanges = new ArrayList<>(Arrays.asList(aa, bb, cc, dd, ff)); // changer les valid exchanges ici selon les settings.
+
+        if (s1 == null){
+            s1 = new ArrayList<>();
+        }
+        if (s2 == null){
+            s2 = new ArrayList<>();
+        }
+        if (s3 == null){
+            s3 = new ArrayList<>();
+        }
+        if (s4 == null){
+            s4 = new ArrayList<>();
+        }
+
+        if (recyclerViewTop == null){
+            recyclerViewTop = findViewById(R.id.recyclerViewTop);
+        }
+
         s1.clear();
         s2.clear();
         s3.clear();
         s4.clear();
-        validExchanges = new ArrayList<>(Arrays.asList(aa, bb, cc, dd, ff));
 
         Registry registry = null; // here we would pass the exchanges
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             registry = new Registry(validExchanges);
         }
-        LiveData<ArrayList<TickerWithExchange>> highestPercentage = registry.getMaxGainers();
 
-        // dans le 2e recycler view dans le main
-        LiveData<ArrayList<TickerWithExchange>> lowestPercentage = registry.getMinGainers();
+        // dans la 1ere partie du recycler view dans le main
+        highestPercentage = registry.getMaxGainers();
 
-        LiveData<ArrayList<Currency>> allCurrencies = registry.getAllCurrencies();
+        // dans la 2e partie du recycler view dans le main
+        lowestPercentage = registry.getMinGainers();
+
+        allCurrencies = registry.getAllCurrencies();
 
         allCurrencies.observe(this, e->{
             // do the code needed for, ie the search bar in here
         });
 
-        //Mettres les éléments dans des strings pour le recyclerView top
+        //Mettre les éléments dans des ArrayList pour la premiere partie du recyclerView
         highestPercentage.observe(this, e->{
 
             for(TickerWithExchange ticker:e){
                 s1.add(ticker.getName());
-            }
 
-            for(TickerWithExchange ticker:e){
                 String temp;
                 String temp2[];
 
@@ -296,13 +212,9 @@ public class MainActivity extends AppCompatActivity {
                 temp2 = temp.split("#");
 
                 s2.add(temp2[0]);
-            }
 
-            for(TickerWithExchange ticker:e){
                 s3.add(Double.toString(ticker.getPercentChange()));
-            }
 
-            for(TickerWithExchange ticker:e){
                 s4.add(Double.toString(ticker.getPrice()));
             }
 
@@ -312,17 +224,14 @@ public class MainActivity extends AppCompatActivity {
             recyclerViewTop.setAdapter(myAdapter);
 
             Toast.makeText(this,getString(R.string.finish),Toast.LENGTH_SHORT).show();
-            // do the code to insert the ArrayList<TickerWithExchange> in the 1st recycler view here
         });
 
-        //Mettres les éléments dans des strings pour le recyclerView Low
+        //Mettre les éléments dans des ArrayList pour la deuxieme partie du recyclerView
         lowestPercentage.observe(this, e->{
 
             for(TickerWithExchange ticker: e){
                 s1.add(ticker.getName());
-            }
 
-            for(TickerWithExchange ticker:e){
                 String temp;
                 String temp2[];
 
@@ -330,16 +239,11 @@ public class MainActivity extends AppCompatActivity {
                 temp2 = temp.split("#");
 
                 s2.add(temp2[0]);
-            }
 
-            for(TickerWithExchange ticker:e){
                 s3.add(Double.toString(ticker.getPercentChange()));
-            }
 
-            for(TickerWithExchange ticker:e){
                 s4.add(Double.toString(ticker.getPrice()));
             }
-            // do the code to insert the ArrayList<TickerWithExchange> in the 2nd recycler view here
         });
     }
 
