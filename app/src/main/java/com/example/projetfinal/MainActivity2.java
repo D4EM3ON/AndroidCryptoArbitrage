@@ -88,13 +88,27 @@ public class MainActivity2 extends AppCompatActivity {
         //le premier ctop ou bottom
         // le deuxieme c 15 string chaque
 
-        for (int i = 0; i < opportunities.get(1).size()/5 ; i++) {
+        double top, bottom;
+        int indiceTop, indiceBottom;
+        top = Double.parseDouble(opportunities.get(0).get(3));
+        bottom = Double.parseDouble(opportunities.get(1).get(3));
 
-            instruments.add(opportunities.get(1).get(0+(5*i)));
-            instrumentNames.add(opportunities.get(1).get(1+(5*i)));
-            exchanges.add(opportunities.get(1).get(2+(5*i)));
-            prices.add(opportunities.get(1).get(3+(5*i)));
-            percentChanges.add(opportunities.get(1).get(4+(5*i)));
+        if (top > bottom){
+            indiceTop = 1;
+            indiceBottom = 0;
+        }
+        else{
+            indiceTop = 0;
+            indiceBottom = 1;
+        }
+
+        for (int i = 0; i < opportunities.get(indiceTop).size()/5 ; i++) {
+
+            instruments.add(opportunities.get(indiceTop).get(0+(5*i)));
+            instrumentNames.add(opportunities.get(indiceTop).get(1+(5*i)));
+            exchanges.add(opportunities.get(indiceTop).get(2+(5*i)));
+            prices.add(opportunities.get(indiceTop).get(3+(5*i)));
+            percentChanges.add(opportunities.get(indiceTop).get(4+(5*i)));
         }
 
         myAdapterTop2 = new MyAdapter2(instruments, exchanges, percentChanges, prices, instrumentNames);
@@ -104,20 +118,19 @@ public class MainActivity2 extends AppCompatActivity {
 
         Toast.makeText(this, getString(R.string.finish), Toast.LENGTH_SHORT).show();
 
-
         ArrayList<String> instrument = new ArrayList<>();
         ArrayList<String> exchange = new ArrayList<>();
         ArrayList<String> percentChange = new ArrayList<>();
         ArrayList<String> price = new ArrayList<>();
         ArrayList<String> instrumentName = new ArrayList<>();
 
-        for (int i = 0; i < opportunities.get(0).size()/5 ; i++) {
+        for (int i = 0; i < opportunities.get(indiceBottom).size()/5 ; i++) {
 
-            instrument.add(opportunities.get(0).get(0+(5*i)));
-            instrumentName.add(opportunities.get(0).get(1+(5*i)));
-            exchange.add(opportunities.get(0).get(2+(5*i)));
-            price.add(opportunities.get(0).get(3+(5*i)));
-            percentChange.add(opportunities.get(0).get(4+(5*i)));
+            instrument.add(opportunities.get(indiceBottom).get(0+(5*i)));
+            instrumentName.add(opportunities.get(indiceBottom).get(1+(5*i)));
+            exchange.add(opportunities.get(indiceBottom).get(2+(5*i)));
+            price.add(opportunities.get(indiceBottom).get(3+(5*i)));
+            percentChange.add(opportunities.get(indiceBottom).get(4+(5*i)));
         }
 
         myAdapterBottom2 = new MyAdapter2(instrument, exchange, percentChange, price, instrumentName);
