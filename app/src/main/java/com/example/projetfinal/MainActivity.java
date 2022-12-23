@@ -37,10 +37,7 @@ import org.knowm.xchange.currency.Currency;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
-import io.vavr.collection.Array;
 
 /**
  * The type Main activity.
@@ -60,14 +57,14 @@ public class MainActivity extends AppCompatActivity {
     private ListView listView;
     private List<String> name = null;
     private ArrayAdapter<String> arrayAdapter;
-
+    private ArrayList<TickerWithExchange>[] opportunities;
+    private Registry registry;
     private SwipeRefreshLayout swipeRefreshLayout;
-
+    private MyAdapter.RecyclerViewClickListener listener;
     private LiveData<ArrayList<TickerWithExchange>> highestPercentage;
     private ArrayList<Integer> validExchanges;
-
     private long startTime = System.currentTimeMillis();
-    private int aa,bb,cc,dd,ee,ff;
+    private int aa,bb,cc,dd,ff;
     private LiveData<ArrayList<TickerWithExchange>> lowestPercentage;
     private LiveData<ArrayList<Currency>> allCurrencies;
 
@@ -116,6 +113,37 @@ public class MainActivity extends AppCompatActivity {
         // ArrayList<TickerWithExchange>[] arbitrage = registry.getArbitrage(allCurrencies.get(index));
 
 
+    }
+
+    private void setOnClickListener() {
+        listener = new MyAdapter.RecyclerViewClickListener() {
+            @Override
+            public void onClick(View v, int position) {
+             Intent intent = new Intent(getApplicationContext(),MainActivity2.class);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    opportunities = registry.getArbitrage(new Currency("USDT"));
+                }
+
+                ArrayList<ArrayList<String>> stringOpps = new ArrayList<>();
+
+                for (int i = 0; i < 2; i++){
+                    stringOpps.add(new ArrayList<>());
+                    for (TickerWithExchange ticker : opportunities[i]){
+                        ticker.setToUSD(registry.setTickerUSD(ticker));
+                        stringOpps.get(i).add(ticker.getInstrument().toString());
+                        stringOpps.get(i).add(ticker.getName());
+                        stringOpps.get(i).add(ticker.getExchange().toString().split("#")[0]);
+                        stringOpps.get(i).add(Double.toString(ticker.getPriceInUSD()));
+                        stringOpps.get(i).add(Double.toString(ticker.getPercentChange()));
+                    }
+                }
+
+             intent.putExtra("opps",stringOpps);
+
+             startActivity(intent);
+            }
+        };
     }
     //part for menu
 
@@ -183,7 +211,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
     //part pour menu arrete ici
-    @RequiresApi(api = Build.VERSION_CODES.N)
     private void update(){
         SharedPreferences mPreferences =  getSharedPreferences(SHARED_PREFS,MODE_PRIVATE);
         SharedPreferences.Editor editor = mPreferences.edit();
@@ -205,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerViewBottom = findViewById(R.id.recyclerViewBottom);
 
 
-        Registry registry = null; // here we would pass the exchanges
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             registry = new Registry(validExchanges);
         }
@@ -227,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
                 name.add(currency.toString());
                 name.add(currency.getDisplayName());
             }
-
+            setOnClickListener();
             // search bar
 
             // ton search bar met juste absolument tout dans un listView, listView qui est dans le recycler. jsp trop pk. On ne veut pas chercher
@@ -243,9 +270,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //Mettre les éléments dans des ArrayList pour la premiere partie du recyclerView
-        Registry finalRegistry = registry;
         highestPercentage.observe(this, e->{
-            finalRegistry.getArbitrage(Currency.USDT); // to get prices in USD
 
             ArrayList<String> instruments = new ArrayList<>();
             ArrayList<String> exchanges = new ArrayList<>();
@@ -254,19 +279,21 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<String> instrumentNames = new ArrayList<>();
 
             for(TickerWithExchange ticker:e){
+                ticker.setToUSD(registry.setTickerUSD(ticker));
+
                 instruments.add(ticker.getInstrument().toString());
 
                 exchanges.add(ticker.getExchange().toString().split("#")[0]);
 
                 percentChanges.add(Double.toString(ticker.getPercentChange()));
 
-                double price = ticker.getPriceInUSD();
                 prices.add(Double.toString(ticker.getPriceInUSD()));
 
                 instrumentNames.add(ticker.getName());
+
             }
 
-            myAdapterTop = new MyAdapter(instruments, exchanges, percentChanges, prices, instrumentNames);
+            myAdapterTop = new MyAdapter(instruments, exchanges, percentChanges, prices, instrumentNames,listener);
             recyclerViewTop.setLayoutManager(new LinearLayoutManager(this));
             recyclerViewTop.setAdapter(myAdapterTop);
             recyclerViewTop.getAdapter().notifyDataSetChanged();
@@ -284,6 +311,8 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<String> instrumentNames = new ArrayList<>();
 
             for(TickerWithExchange ticker: e){
+                ticker.setToUSD(registry.setTickerUSD(ticker));
+
                 instruments.add(ticker.getInstrument().toString());
 
                 exchanges.add(ticker.getExchange().toString().split("#")[0]);
@@ -293,9 +322,10 @@ public class MainActivity extends AppCompatActivity {
                 prices.add(Double.toString(ticker.getPriceInUSD()));
 
                 instrumentNames.add(ticker.getName());
+
             }
 
-            myAdapterBottom = new MyAdapter(instruments, exchanges, percentChanges, prices, instrumentNames);
+            myAdapterBottom = new MyAdapter(instruments, exchanges, percentChanges, prices, instrumentNames,listener);
             recyclerViewBottom.setLayoutManager(new LinearLayoutManager(this));
             recyclerViewBottom.setAdapter(myAdapterBottom);
             recyclerViewBottom.getAdapter().notifyDataSetChanged();

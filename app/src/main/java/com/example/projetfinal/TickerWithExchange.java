@@ -7,11 +7,11 @@ import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.CandleStick;
 import org.knowm.xchange.dto.marketdata.CandleStickData;
-import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.service.trade.params.DefaultCandleStickParam;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
@@ -27,20 +27,31 @@ public class TickerWithExchange {
     private String name;
     private double toUSD = 0;
 
+    /**
+     * Gets the conversion to usd.
+     *
+     * @return the to usd
+     */
     public double getToUSD() {
         return toUSD;
     }
 
+    /**
+     * Sets the conversion to usd.
+     *
+     * @param toUSD the to usd
+     */
     public void setToUSD(double toUSD) {
         this.toUSD = toUSD;
     }
 
+    /**
+     * Gets the display name.
+     *
+     * @return the name
+     */
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     /**
@@ -50,7 +61,7 @@ public class TickerWithExchange {
      */
     public CandleStickData getCandleSticks() {
         DefaultCandleStickParam candleStickDataParams = new DefaultCandleStickParam(new Date(new Date().getTime() - 1000*60*60*24), new Date(), 60);
-        CandleStickData data = new CandleStickData(instrument, new ArrayList<CandleStick>());
+        CandleStickData data = new CandleStickData(instrument, new ArrayList<>());
         try {
             data = exchange.getMarketDataService().getCandleStickData((CurrencyPair) instrument, candleStickDataParams);
         } catch (IOException e) {
@@ -59,10 +70,11 @@ public class TickerWithExchange {
         return data;
     }
 
-    public Currency getBase(){
-        return new Currency(this.instrument.toString().split("/")[0]);
-    }
-
+    /**
+     * Gets the counter currency.
+     *
+     * @return the currency
+     */
     public Currency getCounter(){
         return new Currency(this.instrument.toString().split("/")[1]);
     }
@@ -80,21 +92,12 @@ public class TickerWithExchange {
     }
 
     /**
-     * Gets price.
+     * Gets the price.
      *
      * @return the price
      */
     public double getPrice() {
         return price;
-    }
-
-    /**
-     * Sets price.
-     *
-     * @param price the price
-     */
-    public void setPrice(double price) {
-        this.price = price;
     }
 
     /**
@@ -141,13 +144,18 @@ public class TickerWithExchange {
         this.toUSD = ticker.toUSD;
     }
 
+    /**
+     * Get price in USD .
+     *
+     * @return the double
+     */
     public Double getPriceInUSD(){
 
         return this.price * this.toUSD;
     }
 
     /**
-     * Gets instrument.
+     * Gets the instrument.
      *
      * @return the instrument
      */
@@ -156,16 +164,7 @@ public class TickerWithExchange {
     }
 
     /**
-     * Sets instrument.
-     *
-     * @param instrument the instrument
-     */
-    public void setInstrument(Instrument instrument) {
-        this.instrument = instrument;
-    }
-
-    /**
-     * Gets percent change.
+     * Gets the percent change.
      *
      * @return the percent change
      */
@@ -174,30 +173,12 @@ public class TickerWithExchange {
     }
 
     /**
-     * Sets percent change.
-     *
-     * @param percentChange the percent change
-     */
-    public void setPercentChange(double percentChange) {
-        this.percentChange = percentChange;
-    }
-
-    /**
-     * Gets exchange.
+     * Gets the exchange.
      *
      * @return the exchange
      */
     public Exchange getExchange() {
         return exchange;
-    }
-
-    /**
-     * Sets exchange.
-     *
-     * @param exchange the exchange
-     */
-    public void setExchange(Exchange exchange) {
-        this.exchange = exchange;
     }
 
     @NonNull
@@ -226,8 +207,14 @@ public class TickerWithExchange {
     }
 
 
+    /**
+     * Compare to int.
+     *
+     * @param t2 the ticker we are comparing to
+     * @return if it is equal or not
+     */
     public int compareTo(TickerWithExchange t2) {
-        boolean tf = this.getPriceInUSD() == t2.getPriceInUSD();
+        boolean tf = Objects.equals(this.getPriceInUSD(), t2.getPriceInUSD());
         if (tf) return 0;
         return 1;
     }

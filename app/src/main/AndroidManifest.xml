@@ -16,6 +16,14 @@
         android:theme="@style/Theme.ProjetFinal"
         tools:targetApi="31">
         <activity
+            android:name=".MainActivity2"
+            android:parentActivityName=".MainActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".AboutMe_activity"
             android:exported="false"
             android:parentActivityName=".MainActivity">
@@ -40,6 +48,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>
