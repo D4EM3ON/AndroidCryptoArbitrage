@@ -20,6 +20,7 @@ import org.knowm.xchange.service.marketdata.params.CurrencyPairsParam;
 import org.knowm.xchange.upbit.UpbitExchange;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,7 +39,7 @@ import java.util.concurrent.Executors;
  *
  * @author Justin Quirion
  */
-public class Registry {
+public class Registry implements Serializable {
     private MutableLiveData<ArrayList<Exchange>> exchanges = new MutableLiveData<>();
     private MutableLiveData<ArrayList<CurrencyPair>> allPairs = new MutableLiveData<>();
     private MutableLiveData<ArrayList<TickerWithExchange>> allTickers = new MutableLiveData<>();

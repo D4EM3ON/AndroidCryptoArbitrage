@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MainActivity2 extends AppCompatActivity {
-    String names;
+
     private RecyclerView recyclerViewTop2 = null;
     private RecyclerView recyclerViewBottom2 = null;
     private MyAdapter2 myAdapterTop2, myAdapterBottom2;
@@ -39,6 +39,7 @@ public class MainActivity2 extends AppCompatActivity {
     private ArrayList<Integer> validExchanges;
     private long startTime = System.currentTimeMillis();
     private int aa,bb,cc,dd,ff;
+
     ArrayList<TickerWithExchange>[] opportunities;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +47,10 @@ public class MainActivity2 extends AppCompatActivity {
         setContentView(R.layout.activity_main2);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        names = getIntent().getStringExtra("type");
+
 
         Intent intent = getIntent();
+        opportunities = (ArrayList<TickerWithExchange>[]) intent.getSerializableExtra("opps");
 
         this.setTitle(R.string.title);
 
@@ -97,17 +99,12 @@ public class MainActivity2 extends AppCompatActivity {
         recyclerViewBottom2 = findViewById(R.id.recyclerViewBottom2);
 
 
-        Registry registry = null; // here we would pass the exchanges
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            registry = new Registry(validExchanges);
-        }
 
 
 
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            opportunities = registry.getArbitrage(new Currency(names));
-        }
+
+
 
 
         //Mettre les éléments dans des ArrayList pour la premiere partie du recyclerView

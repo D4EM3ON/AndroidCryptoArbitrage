@@ -36,10 +36,7 @@ import org.knowm.xchange.currency.Currency;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
-import io.vavr.collection.Array;
 
 /**
  * The type Main activity.
@@ -59,12 +56,12 @@ public class MainActivity extends AppCompatActivity {
     private ListView listView;
     private ArrayList<String> name = null;
     private ArrayAdapter<String> arrayAdapter;
-
+    private ArrayList<TickerWithExchange>[] opportunities;
+    private Registry registry;
     private SwipeRefreshLayout swipeRefreshLayout;
     private MyAdapter.RecyclerViewClickListener listener;
     private LiveData<ArrayList<TickerWithExchange>> highestPercentage;
     private ArrayList<Integer> validExchanges;
-
     private long startTime = System.currentTimeMillis();
     private int aa,bb,cc,dd,ff;
     private LiveData<ArrayList<TickerWithExchange>> lowestPercentage;
@@ -83,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         this.setTitle(R.string.title);
 
         update();
-        setOnClickListener();
+
         swipeRefreshLayout = findViewById(R.id.refreshLayout);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -119,7 +116,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v, int position) {
              Intent intent = new Intent(getApplicationContext(),MainActivity2.class);
 
-             intent.putExtra("type",);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    opportunities = registry.getArbitrage(new Currency("USDT"));
+                }
+             intent.putExtra("opps",opportunities);
+
              startActivity(intent);
             }
         };
@@ -199,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerViewBottom = findViewById(R.id.recyclerViewBottom);
 
 
-        Registry registry = null; // here we would pass the exchanges
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             registry = new Registry(validExchanges);
         }
@@ -221,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
                 name.add(currency.toString());
                 name.add(currency.getDisplayName());
             }
-
+            setOnClickListener();
             // search bar
 
             // ton search bar met juste absolument tout dans un listView, listView qui est dans le recycler. jsp trop pk. On ne veut pas chercher
