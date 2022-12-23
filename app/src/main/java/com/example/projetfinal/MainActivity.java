@@ -27,6 +27,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import androidx.appcompat.widget.SearchView;
@@ -78,11 +79,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         arrayAdapter=new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
-
         Intent intent = getIntent();
 
         this.setTitle(R.string.title);
-
         update();
 
         swipeRefreshLayout = findViewById(R.id.refreshLayout);
@@ -334,6 +333,13 @@ public class MainActivity extends AppCompatActivity {
             listView=findViewById(R.id.listview1);
             arrayAdapter=new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, name);
             listView.setAdapter(arrayAdapter);
+
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    // When clicked perform some action...
+                }
+            });
 
             listView.setAlpha(0);
 
