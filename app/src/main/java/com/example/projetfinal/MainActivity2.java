@@ -18,6 +18,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 
+import android.util.Log;
 import android.widget.Toast;
 
 import org.knowm.xchange.currency.Currency;
@@ -35,19 +36,18 @@ public class MainActivity2 extends AppCompatActivity {
     private ArrayList<String> name = null;
 
 
-    private SwipeRefreshLayout swipeRefreshLayout2;
+
     private ArrayList<Integer> validExchanges;
     private long startTime = System.currentTimeMillis();
-    private int aa,bb,cc,dd,ff;
+    private int aa, bb, cc, dd, ff;
 
     ArrayList<ArrayList<String>> opportunities;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-
 
         Intent intent = getIntent();
         opportunities = (ArrayList<ArrayList<String>>) intent.getSerializableExtra("opps");
@@ -55,26 +55,6 @@ public class MainActivity2 extends AppCompatActivity {
         this.setTitle(R.string.title);
 
         update();
-
-        swipeRefreshLayout2 = findViewById(R.id.refreshLayout2);
-        swipeRefreshLayout2.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-
-                long elapsedTime = System.currentTimeMillis() - startTime;
-                long timeTillNextDisplayChange = 60000 - (elapsedTime % 60000);
-                if (elapsedTime > 60000){
-                    update();
-                    Toast.makeText(getApplicationContext(),"Updating", Toast.LENGTH_SHORT).show();
-                    swipeRefreshLayout2.setRefreshing(false);
-                    startTime =0;
-                } else {
-                    Toast.makeText(getApplicationContext(),"wait " + Long.toString(timeTillNextDisplayChange/ 1000L) + " s", Toast.LENGTH_SHORT).show();
-                }
-
-                swipeRefreshLayout2.setRefreshing(false);
-            }
-        });
 
     }
 
@@ -100,7 +80,6 @@ public class MainActivity2 extends AppCompatActivity {
 
         //Mettre les éléments dans des ArrayList pour la premiere partie du recyclerView
 
-
         ArrayList<String> instruments = new ArrayList<>();
         ArrayList<String> exchanges = new ArrayList<>();
         ArrayList<String> percentChanges = new ArrayList<>();
@@ -108,45 +87,42 @@ public class MainActivity2 extends AppCompatActivity {
         ArrayList<String> instrumentNames = new ArrayList<>();
         //le premier ctop ou bottom
         // le deuxieme c 15 string chaque
-        for (int i = 0; i < 2; i=i*5) {
 
-                instruments.add(opportunities.get(0).get(i));i++;
-                instrumentNames.add(opportunities.get(0).get(i));i++;
-                exchanges.add(opportunities.get(0).get(i));i++;
-                prices.add(opportunities.get(0).get(i));i++;
-                percentChanges.add(opportunities.get(0).get(i));i++;
+        for (int i = 0; i < opportunities.get(0).size()/5 ; i++) {
 
-
+            instruments.add(opportunities.get(0).get(0+(5*i)));
+            instrumentNames.add(opportunities.get(0).get(1+(5*i)));
+            exchanges.add(opportunities.get(0).get(2+(5*i)));
+            prices.add(opportunities.get(0).get(3+(5*i)));
+            percentChanges.add(opportunities.get(0).get(4+(5*i)));
         }
 
-            myAdapterTop2 = new MyAdapter2(instruments, exchanges, percentChanges, prices, instrumentNames);
-            recyclerViewTop2.setLayoutManager(new LinearLayoutManager(this));
-            recyclerViewTop2.setAdapter(myAdapterTop2);
-            recyclerViewTop2.getAdapter().notifyDataSetChanged();
+        myAdapterTop2 = new MyAdapter2(instruments, exchanges, percentChanges, prices, instrumentNames);
+        recyclerViewTop2.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewTop2.setAdapter(myAdapterTop2);
+        recyclerViewTop2.getAdapter().notifyDataSetChanged();
 
-            Toast.makeText(this,getString(R.string.finish),Toast.LENGTH_SHORT).show();
-
-
-            ArrayList<String> instrument = new ArrayList<>();
-            ArrayList<String> exchange = new ArrayList<>();
-            ArrayList<String> percentChange = new ArrayList<>();
-            ArrayList<String> price = new ArrayList<>();
-            ArrayList<String> instrumentName = new ArrayList<>();
-
-        for (int i = 0; i < 2; i=i*5) {
-
-            instruments.add(opportunities.get(1).get(i));i++;
-            instrumentNames.add(opportunities.get(1).get(i));i++;
-            exchanges.add(opportunities.get(1).get(i));i++;
-            prices.add(opportunities.get(1).get(i));i++;
-            percentChanges.add(opportunities.get(1).get(i));i++;
+        Toast.makeText(this, getString(R.string.finish), Toast.LENGTH_SHORT).show();
 
 
+        ArrayList<String> instrument = new ArrayList<>();
+        ArrayList<String> exchange = new ArrayList<>();
+        ArrayList<String> percentChange = new ArrayList<>();
+        ArrayList<String> price = new ArrayList<>();
+        ArrayList<String> instrumentName = new ArrayList<>();
+
+        for (int i = 0; i < opportunities.get(1).size()/5 ; i++) {
+
+            instrument.add(opportunities.get(1).get(0+(5*i)));
+            instrumentName.add(opportunities.get(1).get(1+(5*i)));
+            exchange.add(opportunities.get(1).get(2+(5*i)));
+            price.add(opportunities.get(1).get(3+(5*i)));
+            percentChange.add(opportunities.get(1).get(4+(5*i)));
         }
 
-            myAdapterBottom2 = new MyAdapter2(instruments, exchanges, percentChanges, prices, instrumentNames);
-            recyclerViewBottom2.setLayoutManager(new LinearLayoutManager(this));
-            recyclerViewBottom2.setAdapter(myAdapterBottom2);
-            recyclerViewBottom2.getAdapter().notifyDataSetChanged();
-        }
+        myAdapterBottom2 = new MyAdapter2(instrument, exchange, percentChange, price, instrumentName);
+        recyclerViewBottom2.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewBottom2.setAdapter(myAdapterBottom2);
+        recyclerViewBottom2.getAdapter().notifyDataSetChanged();
     }
+}

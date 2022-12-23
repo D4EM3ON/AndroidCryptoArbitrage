@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -68,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
     private int aa,bb,cc,dd,ff;
     private LiveData<ArrayList<TickerWithExchange>> lowestPercentage;
     private LiveData<ArrayList<Currency>> allCurrencies;
-
+    ArrayList<String> top,bot;
     Menu activityMenu;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
         listView=findViewById(R.id.listview1);
         arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,name);
-        listView.setAdapter(arrayAdapter);
+      //  listView.setAdapter(arrayAdapter);
 
         Intent intent = getIntent();
 
@@ -121,11 +122,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v, int position) {
              Intent intent = new Intent(getApplicationContext(),MainActivity2.class);
+                View view = (View) v.getParent();
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    opportunities = registry.getArbitrage(new Currency("USDT"));
+                if (view.getId()== R.id.recyclerViewTop) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        opportunities = registry.getArbitrage(new Currency(top.get(position)));
+                    }
                 }
-
+                else if(view.getId()== R.id.recyclerViewBottom){
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        opportunities = registry.getArbitrage(new Currency(bot.get(position)));
+                    }
+                }else{
+                    Log.i("id",v.getId()+""+R.id.recyclerViewTop+""+R.id.recyclerViewBottom);
+                }
                 ArrayList<ArrayList<String>> stringOpps = new ArrayList<>();
 
                 for (int i = 0; i < 2; i++){
@@ -157,8 +167,8 @@ public class MainActivity extends AppCompatActivity {
 
         //action qui crée le menu
         //faire l'action de crée seulement un fois que l'utilisateur ait clicker sur le search icon
-        SearchView searchView = null;
-
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        activityMenu = menu;
         searchView.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View view) {
@@ -272,13 +282,13 @@ public class MainActivity extends AppCompatActivity {
 
         //Mettre les éléments dans des ArrayList pour la premiere partie du recyclerView
         highestPercentage.observe(this, e->{
-
+            top = new ArrayList<String>();
             ArrayList<String> instruments = new ArrayList<>();
             ArrayList<String> exchanges = new ArrayList<>();
             ArrayList<String> percentChanges = new ArrayList<>();
             ArrayList<String> prices = new ArrayList<>();
             ArrayList<String> instrumentNames = new ArrayList<>();
-
+            top.clear();
             for(TickerWithExchange ticker:e){
                 ticker.setToUSD(registry.setTickerUSD(ticker));
 
@@ -292,6 +302,8 @@ public class MainActivity extends AppCompatActivity {
 
                 instrumentNames.add(ticker.getName());
 
+                top.add(ticker.getInstrument().toString().split("/")[0]);
+
             }
 
             myAdapterTop = new MyAdapter(instruments, exchanges, percentChanges, prices, instrumentNames,listener);
@@ -304,13 +316,13 @@ public class MainActivity extends AppCompatActivity {
 
         //Mettre les éléments dans des ArrayList pour la deuxieme partie du recyclerView
         lowestPercentage.observe(this, e->{
-
+            bot = new ArrayList<String>();
             ArrayList<String> instruments = new ArrayList<>();
             ArrayList<String> exchanges = new ArrayList<>();
             ArrayList<String> percentChanges = new ArrayList<>();
             ArrayList<String> prices = new ArrayList<>();
             ArrayList<String> instrumentNames = new ArrayList<>();
-
+            bot.clear();
             for(TickerWithExchange ticker: e){
                 ticker.setToUSD(registry.setTickerUSD(ticker));
 
@@ -323,6 +335,9 @@ public class MainActivity extends AppCompatActivity {
                 prices.add(Double.toString(ticker.getPriceInUSD()));
 
                 instrumentNames.add(ticker.getName());
+
+                bot.add(ticker.getInstrument().toString().split("/")[0]);
+
 
             }
 
