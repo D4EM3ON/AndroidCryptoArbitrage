@@ -151,8 +151,6 @@ public class MainActivity extends AppCompatActivity {
 
         MenuItem menuItem = menu.findItem(R.id.action_search);
 
-        //action qui crée le menu
-        //faire l'action de crée seulement un fois que l'utilisateur ait clicker sur le search icon
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         menu.findItem(R.id.action_search).setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
@@ -229,25 +227,6 @@ public class MainActivity extends AppCompatActivity {
            };
        });
 
-        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
-            @Override
-            public boolean onClose() {
-                Log.i("Retour","done");
-
-                ListView listView=findViewById(R.id.listview1);
-                listView.setAlpha(0);
-
-                TextView titreHighest=findViewById(R.id.titreHighest);
-                TextView titreLowest=findViewById(R.id.titreLowest);
-
-                titreHighest.setVisibility(View.VISIBLE);
-                titreLowest.setVisibility(View.VISIBLE);
-                recyclerViewBottom.setVisibility(View.VISIBLE);
-                recyclerViewTop.setVisibility(View.VISIBLE);
-
-                return false;
-            }
-        });
        activityMenu = menu;
         //quand l'utilisateur sort du search bar, la listview doit se supprimer et laisser place au recyclerView
         return super.onCreateOptionsMenu(menu);
