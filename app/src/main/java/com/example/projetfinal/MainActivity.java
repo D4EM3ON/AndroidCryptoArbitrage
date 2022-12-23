@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
         listView=findViewById(R.id.listview1);
         arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,name);
-        listView.setAdapter(arrayAdapter);
+        // listView.setAdapter(arrayAdapter);
 
         Intent intent = getIntent();
 
@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
 
         //action qui crée le menu
         //faire l'action de crée seulement un fois que l'utilisateur ait clicker sur le search icon
-        SearchView searchView = null;
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
 
         searchView.setOnClickListener(new View.OnClickListener() {
            @Override
@@ -178,11 +178,12 @@ public class MainActivity extends AppCompatActivity {
                        arrayAdapter.getFilter().filter(newText);
 
                        return false;
-                   }
+                  }
 
                });
            };
        });
+       activityMenu = menu;
         //quand l'utilisateur sort du search bar, la listview doit se supprimer et laisser place au recyclerView
         return super.onCreateOptionsMenu(menu);
     }
