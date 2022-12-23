@@ -17,11 +17,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
-import android.util.Log;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -57,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerViewBottom = null;
     private MyAdapter myAdapterTop, myAdapterBottom;
 
-    ArrayAdapter<String> arrayAdapter;
+    private ArrayAdapter<String> arrayAdapter;
 
     private ArrayList<TickerWithExchange>[] opportunities;
     private Registry registry;
@@ -69,8 +66,9 @@ public class MainActivity extends AppCompatActivity {
     private int aa,bb,cc,dd,ff;
     private LiveData<ArrayList<TickerWithExchange>> lowestPercentage;
     private LiveData<ArrayList<Currency>> allCurrencies;
-    ArrayList<String> top,bot;
-    Menu activityMenu;
+    private ArrayList<String> top,bot;
+    private Menu activityMenu;
+    private List<String> name;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -103,14 +101,6 @@ public class MainActivity extends AppCompatActivity {
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
-        // 2e page:
-        int index = 0;
-        // index gotten from search/click. we can also just take what was clicked on and put
-        // it in getArbitrage
-        // in [0] is the top, in [1] is losers. All are already in order
-        // ArrayList<TickerWithExchange>[] arbitrage = registry.getArbitrage(allCurrencies.get(index));
-
-
     }
 
     private void setOnClickListener() {
@@ -178,6 +168,7 @@ public class MainActivity extends AppCompatActivity {
                 ListView listView=findViewById(R.id.listview1);
                 listView.setAlpha(0);
 
+
                 TextView titreHighest=findViewById(R.id.titreHighest);
                 TextView titreLowest=findViewById(R.id.titreLowest);
 
@@ -199,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
                Log.i("fonction","load");
 
                ListView listView=findViewById(R.id.listview1);
+
                listView.setAlpha(1);
 
                TextView titreHighest=findViewById(R.id.titreHighest);
@@ -217,6 +209,11 @@ public class MainActivity extends AppCompatActivity {
                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                    @Override
                    public boolean onQueryTextSubmit(String query) {
+                       try{
+                           toSecondPage(query.toUpperCase());
+                       } catch (NullPointerException e){
+
+                       }
                        return false;
                    }
 
@@ -318,28 +315,19 @@ public class MainActivity extends AppCompatActivity {
         allCurrencies.observe(this, e->{
 
             ListView listView;
-            List<String> name=new ArrayList<>();
+            name=new ArrayList<>();
 
             for (Currency currency : e){
-                name.add(currency.toString());
+                if (!name.contains(currency.toString())){
+                    name.add(currency.toString());
+                }
             }
             setOnClickListener();
             // search bar
 
-            // ton search bar met juste absolument tout dans un listView, listView qui est dans le recycler. jsp trop pk. On ne veut pas chercher
-            // dans le recyclerview, on veut chercher dans une base de données textes que tu as sous format string
-            // donc quand tu fais ton query, tu veux tout enlever et mettre le list view
-
             listView=findViewById(R.id.listview1);
             arrayAdapter=new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, name);
             listView.setAdapter(arrayAdapter);
-
-            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    // When clicked perform some action...
-                }
-            });
 
             listView.setAlpha(0);
 
@@ -415,6 +403,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
     private void toSecondPage(String currency){
+        if (!this.name.contains(currency)){
+            throw new NullPointerException();
+        }
+
         Intent intent = new Intent(getApplicationContext(),MainActivity2.class);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

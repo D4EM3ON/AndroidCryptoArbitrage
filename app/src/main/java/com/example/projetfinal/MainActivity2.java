@@ -88,13 +88,13 @@ public class MainActivity2 extends AppCompatActivity {
         //le premier ctop ou bottom
         // le deuxieme c 15 string chaque
 
-        for (int i = 0; i < opportunities.get(0).size()/5 ; i++) {
+        for (int i = 0; i < opportunities.get(1).size()/5 ; i++) {
 
-            instruments.add(opportunities.get(0).get(0+(5*i)));
-            instrumentNames.add(opportunities.get(0).get(1+(5*i)));
-            exchanges.add(opportunities.get(0).get(2+(5*i)));
-            prices.add(opportunities.get(0).get(3+(5*i)));
-            percentChanges.add(opportunities.get(0).get(4+(5*i)));
+            instruments.add(opportunities.get(1).get(0+(5*i)));
+            instrumentNames.add(opportunities.get(1).get(1+(5*i)));
+            exchanges.add(opportunities.get(1).get(2+(5*i)));
+            prices.add(opportunities.get(1).get(3+(5*i)));
+            percentChanges.add(opportunities.get(1).get(4+(5*i)));
         }
 
         myAdapterTop2 = new MyAdapter2(instruments, exchanges, percentChanges, prices, instrumentNames);
@@ -111,13 +111,13 @@ public class MainActivity2 extends AppCompatActivity {
         ArrayList<String> price = new ArrayList<>();
         ArrayList<String> instrumentName = new ArrayList<>();
 
-        for (int i = 0; i < opportunities.get(1).size()/5 ; i++) {
+        for (int i = 0; i < opportunities.get(0).size()/5 ; i++) {
 
-            instrument.add(opportunities.get(1).get(0+(5*i)));
-            instrumentName.add(opportunities.get(1).get(1+(5*i)));
-            exchange.add(opportunities.get(1).get(2+(5*i)));
-            price.add(opportunities.get(1).get(3+(5*i)));
-            percentChange.add(opportunities.get(1).get(4+(5*i)));
+            instrument.add(opportunities.get(0).get(0+(5*i)));
+            instrumentName.add(opportunities.get(0).get(1+(5*i)));
+            exchange.add(opportunities.get(0).get(2+(5*i)));
+            price.add(opportunities.get(0).get(3+(5*i)));
+            percentChange.add(opportunities.get(0).get(4+(5*i)));
         }
 
         myAdapterBottom2 = new MyAdapter2(instrument, exchange, percentChange, price, instrumentName);
