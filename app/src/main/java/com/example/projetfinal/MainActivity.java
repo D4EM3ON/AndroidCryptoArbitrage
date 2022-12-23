@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.MenuItemCompat;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -57,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private MyAdapter myAdapterTop, myAdapterBottom;
 
     private ListView listView;
-    private ArrayList<String> name = null;
+    private List<String> name = null;
     private ArrayAdapter<String> arrayAdapter;
 
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -77,6 +78,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        listView=findViewById(R.id.listview1);
+        arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,name);
+        listView.setAdapter(arrayAdapter);
 
         Intent intent = getIntent();
 
@@ -118,27 +123,39 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.activity_menu,menu);
-        //search bar
-        SearchView searchView= (SearchView) menu.findItem(R.id.search).getActionView();
-        searchView.setQueryHint("Search...");
 
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
+        MenuItem menuItem = menu.findItem(R.id.action_search);
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
+        //action qui crée le menu
+        //faire l'action de crée seulement un fois que l'utilisateur ait clicker sur le search icon
+        SearchView searchView = null;
 
-                arrayAdapter.getFilter().filter(newText);
+        searchView.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View view) {
 
-                return false;
-            }
-        });
-        searchView.setClickable(false);
-        this.activityMenu = menu;
-        return true;
+               SearchView searchView;
+               searchView = (SearchView) menuItem.getActionView();
+               searchView.setQueryHint("Search...");
+
+               searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                   @Override
+                   public boolean onQueryTextSubmit(String query) {
+                       return false;
+                   }
+
+                   @Override
+                   public boolean onQueryTextChange(String newText) {
+                       arrayAdapter.getFilter().filter(newText);
+
+                       return false;
+                   }
+
+               });
+           };
+       });
+        //quand l'utilisateur sort du search bar, la listview doit se supprimer et laisser place au recyclerView
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -221,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
             // arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, name);
             // listView.setAdapter(arrayAdapter);
 
-            activityMenu.findItem(R.id.search).getActionView().setClickable(true);
+            activityMenu.findItem(R.id.action_search).getActionView().setClickable(true);
         });
 
 
@@ -284,5 +301,6 @@ public class MainActivity extends AppCompatActivity {
             recyclerViewBottom.getAdapter().notifyDataSetChanged();
         });
     }
+
 
 }
