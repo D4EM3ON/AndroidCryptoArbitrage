@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>{
-
+public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
+   
     ArrayList<String> instruments = null, exchanges = null, percentChanges = null, prices = null, instrumentNames = null;
     private RecyclerViewClickListener listener;
     public MyAdapter(ArrayList<String> s1, ArrayList<String> s2, ArrayList<String> s3, ArrayList<String> s4, ArrayList<String> s5,RecyclerViewClickListener listener){
@@ -69,12 +69,12 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>{
         public void onClick(View view) {
             listener.onClick(view,getAdapterPosition());
         }
+
     }
     public interface RecyclerViewClickListener{
          void onClick(View v, int position);
+
     }
 
-    public ArrayList<String> getInstruments() {
-        return instruments;
-    }
+
 }
