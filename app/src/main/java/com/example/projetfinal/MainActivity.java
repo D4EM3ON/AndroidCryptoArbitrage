@@ -408,6 +408,30 @@ public class MainActivity extends AppCompatActivity {
             recyclerViewBottom.getAdapter().notifyDataSetChanged();
         });
     }
+    private void toSecondPage(String currency){
+        Intent intent = new Intent(getApplicationContext(),MainActivity2.class);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            opportunities = registry.getArbitrage(new Currency(currency));
+        }
+
+        ArrayList<ArrayList<String>> stringOpps = new ArrayList<>();
+
+        for (int i = 0; i < 2; i++){
+            stringOpps.add(new ArrayList<>());
+            for (TickerWithExchange ticker : opportunities[i]){
+                ticker.setToUSD(registry.setTickerUSD(ticker));
+                stringOpps.get(i).add(ticker.getInstrument().toString());
+                stringOpps.get(i).add(ticker.getName());
+                stringOpps.get(i).add(ticker.getExchange().toString().split("#")[0]);
+                stringOpps.get(i).add(Double.toString(ticker.getPriceInUSD()));
+                stringOpps.get(i).add(Double.toString(ticker.getPercentChange()));
+            }
+        }
+
+        intent.putExtra("opps",stringOpps);
+
+        startActivity(intent);
+    }
 
 }
