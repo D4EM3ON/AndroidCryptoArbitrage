@@ -40,7 +40,7 @@ public class MainActivity2 extends AppCompatActivity {
     private long startTime = System.currentTimeMillis();
     private int aa,bb,cc,dd,ff;
 
-    ArrayList<TickerWithExchange>[] opportunities;
+    ArrayList<ArrayList<String>> opportunities;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,7 +50,7 @@ public class MainActivity2 extends AppCompatActivity {
 
 
         Intent intent = getIntent();
-        opportunities = (ArrayList<TickerWithExchange>[]) intent.getSerializableExtra("opps");
+        opportunities = (ArrayList<ArrayList<String>>) intent.getSerializableExtra("opps");
 
         this.setTitle(R.string.title);
 
@@ -119,17 +119,17 @@ public class MainActivity2 extends AppCompatActivity {
 
 
 
-            for (TickerWithExchange ticker :opportunities[0]) {
-                instruments.add(ticker.getInstrument().toString());
-
-                exchanges.add(ticker.getExchange().toString().split("#")[0]);
-
-                percentChanges.add(Double.toString(ticker.getPercentChange()));
-
-                prices.add(Double.toString(ticker.getPriceInUSD()));
-
-                instrumentNames.add(ticker.getName());
-            }
+//            for (String s : opportunities.get(0)) {
+//                instruments.add(s);
+//
+//                exchanges.add(ticker.getExchange().toString().split("#")[0]);
+//
+//                percentChanges.add(Double.toString(ticker.getPercentChange()));
+//
+//                prices.add(Double.toString(ticker.getPriceInUSD()));
+//
+//                instrumentNames.add(ticker.getName());
+//            }
 
             myAdapterTop2 = new MyAdapter2(instruments, exchanges, percentChanges, prices, instrumentNames);
             recyclerViewTop2.setLayoutManager(new LinearLayoutManager(this));
@@ -145,17 +145,17 @@ public class MainActivity2 extends AppCompatActivity {
             ArrayList<String> price = new ArrayList<>();
             ArrayList<String> instrumentName = new ArrayList<>();
 
-            for(TickerWithExchange ticker: opportunities[1]) {
-                instrument.add(ticker.getInstrument().toString());
-
-                exchange.add(ticker.getExchange().toString().split("#")[0]);
-
-                percentChange.add(Double.toString(ticker.getPercentChange()));
-
-                price.add(Double.toString(ticker.getPriceInUSD()));
-
-                instrumentName.add(ticker.getName());
-            }
+//            for(TickerWithExchange ticker: opportunities[1]) {
+//                instrument.add(ticker.getInstrument().toString());
+//
+//                exchange.add(ticker.getExchange().toString().split("#")[0]);
+//
+//                percentChange.add(Double.toString(ticker.getPercentChange()));
+//
+//                price.add(Double.toString(ticker.getPriceInUSD()));
+//
+//                instrumentName.add(ticker.getName());
+//            }
 
             myAdapterBottom2 = new MyAdapter2(instruments, exchanges, percentChanges, prices, instrumentNames);
             recyclerViewBottom2.setLayoutManager(new LinearLayoutManager(this));

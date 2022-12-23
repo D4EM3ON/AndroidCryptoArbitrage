@@ -119,7 +119,21 @@ public class MainActivity extends AppCompatActivity {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     opportunities = registry.getArbitrage(new Currency("USDT"));
                 }
-             intent.putExtra("opps",opportunities);
+
+                ArrayList<ArrayList<String>> stringOpps = new ArrayList<>();
+
+                for (int i = 0; i < 2; i++){
+                    stringOpps.add(new ArrayList<>());
+                    for (TickerWithExchange ticker : opportunities[i]){
+                        stringOpps.get(i).add(ticker.getInstrument().toString());
+                        stringOpps.get(i).add(ticker.getName());
+                        stringOpps.get(i).add(ticker.getExchange().toString().split("#")[0]);
+                        stringOpps.get(i).add(Double.toString(ticker.getPriceInUSD()));
+                        stringOpps.get(i).add(Double.toString(ticker.getPercentChange()));
+                    }
+                }
+
+             intent.putExtra("opps",stringOpps);
 
              startActivity(intent);
             }

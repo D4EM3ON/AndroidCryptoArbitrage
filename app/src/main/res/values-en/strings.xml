@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ProjetFinal</string>
-    <string name="title">title</string>
+    <string name="title">Arbitrage Crawler</string>
     <string name="options">Options</string>
     <string name="propos">About me</string>
     <string name="option_Title">Exchange site options</string>

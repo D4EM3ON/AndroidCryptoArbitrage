@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">ProjetFinal</string>
 
-    <string name="title">titre</string>
+    <string name="title">Arbitrage Crawler</string>
     <string name="options">Options</string>
     <string name="propos">À propos</string>
 

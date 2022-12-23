@@ -237,7 +237,7 @@ public class Registry implements Serializable {
         this.allPossibilities = new HashMap<>();
 
         // we build a hashmap for every currency to look for all possibilities
-        for (TickerWithExchange ticker : Objects.requireNonNull(this.allTickers.getValue())){
+        for (TickerWithExchange ticker : this.allTickers.getValue()){
             CurrencyPair currencyPair = (CurrencyPair) ticker.getInstrument();
             Currency base = currencyPair.base;
 
