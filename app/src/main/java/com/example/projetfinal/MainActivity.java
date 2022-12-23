@@ -125,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
                 for (int i = 0; i < 2; i++){
                     stringOpps.add(new ArrayList<>());
                     for (TickerWithExchange ticker : opportunities[i]){
+                        ticker.setToUSD(registry.setTickerUSD(ticker));
                         stringOpps.get(i).add(ticker.getInstrument().toString());
                         stringOpps.get(i).add(ticker.getName());
                         stringOpps.get(i).add(ticker.getExchange().toString().split("#")[0]);
@@ -261,6 +262,8 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<String> instrumentNames = new ArrayList<>();
 
             for(TickerWithExchange ticker:e){
+                ticker.setToUSD(registry.setTickerUSD(ticker));
+
                 instruments.add(ticker.getInstrument().toString());
 
                 exchanges.add(ticker.getExchange().toString().split("#")[0]);
@@ -291,6 +294,8 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<String> instrumentNames = new ArrayList<>();
 
             for(TickerWithExchange ticker: e){
+                ticker.setToUSD(registry.setTickerUSD(ticker));
+
                 instruments.add(ticker.getInstrument().toString());
 
                 exchanges.add(ticker.getExchange().toString().split("#")[0]);
