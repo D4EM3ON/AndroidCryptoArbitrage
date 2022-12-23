@@ -1,5 +1,7 @@
 package com.example.projetfinal;
 
+import static android.content.Intent.EXTRA_RETURN_RESULT;
+
 import static com.example.projetfinal.Options_activity.SHARED_PREFS;
 import static com.example.projetfinal.Options_activity.SWITCH1;
 import static com.example.projetfinal.Options_activity.SWITCH2;
@@ -8,15 +10,15 @@ import static com.example.projetfinal.Options_activity.SWITCH4;
 import static com.example.projetfinal.Options_activity.SWITCH5;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -28,8 +30,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import androidx.appcompat.widget.SearchView;
-
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.knowm.xchange.currency.Currency;
@@ -66,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
     private int aa,bb,cc,dd,ff;
     private LiveData<ArrayList<TickerWithExchange>> lowestPercentage;
     private LiveData<ArrayList<Currency>> allCurrencies;
-    ArrayList<String> como ,como2;
 
     Menu activityMenu;
 
@@ -112,25 +111,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setOnClickListener() {
-
-
-
-
         listener = new MyAdapter.RecyclerViewClickListener() {
-
             @Override
             public void onClick(View v, int position) {
+             Intent intent = new Intent(getApplicationContext(),MainActivity2.class);
 
-            int id = v.getId();
-
-          
-
-                Intent intent = new Intent(getApplicationContext(),MainActivity2.class);
-
-
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-                            opportunities = registry.getArbitrage(new Currency());
-
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    opportunities = registry.getArbitrage(new Currency("USDT"));
+                }
 
                 ArrayList<ArrayList<String>> stringOpps = new ArrayList<>();
 
@@ -273,7 +261,6 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<String> prices = new ArrayList<>();
             ArrayList<String> instrumentNames = new ArrayList<>();
 
-
             for(TickerWithExchange ticker:e){
                 ticker.setToUSD(registry.setTickerUSD(ticker));
 
@@ -291,7 +278,6 @@ public class MainActivity extends AppCompatActivity {
 
             myAdapterTop = new MyAdapter(instruments, exchanges, percentChanges, prices, instrumentNames,listener);
             recyclerViewTop.setLayoutManager(new LinearLayoutManager(this));
-
             recyclerViewTop.setAdapter(myAdapterTop);
             recyclerViewTop.getAdapter().notifyDataSetChanged();
 
@@ -323,15 +309,10 @@ public class MainActivity extends AppCompatActivity {
             }
 
             myAdapterBottom = new MyAdapter(instruments, exchanges, percentChanges, prices, instrumentNames,listener);
-
             recyclerViewBottom.setLayoutManager(new LinearLayoutManager(this));
-
             recyclerViewBottom.setAdapter(myAdapterBottom);
             recyclerViewBottom.getAdapter().notifyDataSetChanged();
-
-
         });
     }
-
 
 }
