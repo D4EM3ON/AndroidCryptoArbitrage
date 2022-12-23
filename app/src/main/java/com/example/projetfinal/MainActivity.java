@@ -77,9 +77,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         /**
-         * déclaration d'un nouveau arrayAdapter
+         * déclaration d'un nouveau arrayAdapter en fonction d'une list d'item.
          */
         arrayAdapter=new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
+
         Intent intent = getIntent();
 
         this.setTitle(R.string.title);
@@ -149,13 +150,27 @@ public class MainActivity extends AppCompatActivity {
 
 
     @Override
+    /**
+     * création d'un menu option et d'un searchView
+     *
+     */
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.activity_menu,menu);
 
+        /**
+         * création du searchView
+         */
         MenuItem menuItem = menu.findItem(R.id.action_search);
 
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+
+        /**
+         * quand on click sur l'icon du searchView
+         * ouverture = expand
+         * fermeture collapse
+         *
+         */
         menu.findItem(R.id.action_search).setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem menuItem) {
@@ -164,6 +179,15 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
+            /**
+             * fermeture du menu search.
+             * réinitialisation de la front page au données de base
+             *
+             * retour au titre
+             * retour au recyclerView high/low
+             *
+             * disparition du listView
+             */
             public boolean onMenuItemActionCollapse(MenuItem menuItem) {
                 Log.i("Retour","done");
 
@@ -183,9 +207,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        /**
+         * mettre le searcheView Visible
+         */
         searchView.setAlpha(1);
         activityMenu = menu;
 
+        /**
+         * action lorsque l'utilisateur click sur l'icon search
+         *
+         * Disparition des titres
+         * Disparition des recyclerView
+         *
+         * apparition du ListView
+         *
+         * initialisation du hint
+         */
         searchView.setOnSearchClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View view) {
@@ -210,6 +247,10 @@ public class MainActivity extends AppCompatActivity {
 
                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                    @Override
+                   /**
+                    * prend les informations rechercher par l'utilisateur
+                    * ouverture de l'activity 2
+                    */
                    public boolean onQueryTextSubmit(String query) {
                        try{
                            toSecondPage(query.toUpperCase());
@@ -220,6 +261,11 @@ public class MainActivity extends AppCompatActivity {
                    }
 
                    @Override
+                   /**
+                    * listView qui s'adapte selon ce qui est recherché
+                    *
+                    * @param newtText newText
+                    */
                    public boolean onQueryTextChange(String newText) {
 
                        arrayAdapter.getFilter().filter(newText);
@@ -232,11 +278,17 @@ public class MainActivity extends AppCompatActivity {
        });
 
        activityMenu = menu;
-        //quand l'utilisateur sort du search bar, la listview doit se supprimer et laisser place au recyclerView
+
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
+    /**
+     * ouverture de chaque item(menu) selon ce qui a été sélectionné
+     *
+     * @param item item
+     * @return true
+     */
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch(item.getItemId()){
             case R.id.options:
@@ -295,6 +347,15 @@ public class MainActivity extends AppCompatActivity {
 
         allCurrencies = registry.getAllCurrencies();
 
+        /**
+         * extration des live data dans listView
+         * utilisation et initialisation du arrayAdapter
+         *
+         * @param listView listView
+         * @param name name
+         *
+         * search icon clickable
+         */
         allCurrencies.observe(this, e->{
 
             ListView listView;
@@ -319,6 +380,17 @@ public class MainActivity extends AppCompatActivity {
 
 
         //Mettre les éléments dans des ArrayList pour la premiere partie du recyclerView
+        /**
+         * extraction des liva data en list, pour top 5 positif
+         *
+         * @param instruments instruments
+         * @param exchanges exchanges
+         * @param percentChanges percentChanges
+         * @param prices prices
+         * @param instrumentNames instrumentNames
+         *
+         *  Nouveau recyclerView
+         */
         highestPercentage.observe(this, e->{
             top = new ArrayList<String>();
             ArrayList<String> instruments = new ArrayList<>();
@@ -353,6 +425,17 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //Mettre les éléments dans des ArrayList pour la deuxieme partie du recyclerView
+        /**
+         * extraction des liva data en list, pour top 5 négatif
+         *
+         * @param instruments instruments
+         * @param exchanges exchanges
+         * @param percentChanges percentChanges
+         * @param prices prices
+         * @param instrumentNames instrumentNames
+         *
+         *  Nouveau recyclerView
+         */
         lowestPercentage.observe(this, e->{
             bot = new ArrayList<String>();
             ArrayList<String> instruments = new ArrayList<>();
