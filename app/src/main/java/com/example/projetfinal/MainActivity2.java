@@ -18,8 +18,6 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import org.knowm.xchange.currency.Currency;
@@ -38,23 +36,18 @@ public class MainActivity2 extends AppCompatActivity {
 
 
     private SwipeRefreshLayout swipeRefreshLayout2;
-    private LiveData<ArrayList<TickerWithExchange>> highestPercentage;
     private ArrayList<Integer> validExchanges;
     private long startTime = System.currentTimeMillis();
     private int aa,bb,cc,dd,ff;
-    private LiveData<ArrayList<TickerWithExchange>> lowestPercentage;
-    private LiveData<ArrayList<Currency>> allCurrencies;
-    ArrayList[] opportunities;
+    ArrayList<TickerWithExchange>[] opportunities;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        Bundle extras = getIntent().getExtras();
-        if(extras != null){
-            names = extras.getString("type");
-        }
+        names = getIntent().getStringExtra("type");
+
         Intent intent = getIntent();
 
         this.setTitle(R.string.title);
@@ -83,19 +76,19 @@ public class MainActivity2 extends AppCompatActivity {
 
     }
 
-    private void update(){
-        SharedPreferences mPreferences =  getSharedPreferences(SHARED_PREFS,MODE_PRIVATE);
+    private void update() {
+        SharedPreferences mPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
         SharedPreferences.Editor editor = mPreferences.edit();
-        Boolean a = mPreferences.getBoolean(SWITCH1,true);
-        aa = (a) ? 1:0;
-        Boolean b = mPreferences.getBoolean(SWITCH2,true);
-        bb = (b) ? 1:0;
-        Boolean c = mPreferences.getBoolean(SWITCH3,true);
-        cc = (c) ? 1:0;
-        Boolean d = mPreferences.getBoolean(SWITCH4,true);
-        dd = (d) ? 1:0;
-        Boolean f = mPreferences.getBoolean(SWITCH5,true);
-        ff = (f) ? 1:0;
+        Boolean a = mPreferences.getBoolean(SWITCH1, true);
+        aa = (a) ? 1 : 0;
+        Boolean b = mPreferences.getBoolean(SWITCH2, true);
+        bb = (b) ? 1 : 0;
+        Boolean c = mPreferences.getBoolean(SWITCH3, true);
+        cc = (c) ? 1 : 0;
+        Boolean d = mPreferences.getBoolean(SWITCH4, true);
+        dd = (d) ? 1 : 0;
+        Boolean f = mPreferences.getBoolean(SWITCH5, true);
+        ff = (f) ? 1 : 0;
 
         validExchanges = new ArrayList<>(Arrays.asList(aa, bb, cc, ff, dd)); // changer les valid exchanges ici selon les settings.
 
@@ -109,42 +102,27 @@ public class MainActivity2 extends AppCompatActivity {
             registry = new Registry(validExchanges);
         }
 
-        // dans la 1ere partie du recycler view dans le main
-        highestPercentage = registry.getMaxGainers();
 
-        // dans la 2e partie du recycler view dans le main
-        lowestPercentage = registry.getMinGainers();
 
-        allCurrencies = registry.getAllCurrencies();
-        String type = names.toString().split("/")[0];
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-          opportunities =  registry.getArbitrage(new Currency(type));
+            opportunities = registry.getArbitrage(new Currency(names));
         }
 
-        allCurrencies.observe(this, e->{
-            if (name == null){
-                name = new ArrayList<>();
-            }
-
-            for (Currency currency : e){
-                name.add(currency.toString());
-                name.add(currency.getDisplayName());
-            }
-
-
-
-        });
 
         //Mettre les éléments dans des ArrayList pour la premiere partie du recyclerView
-        highestPercentage.observe(this, e->{
 
-            ArrayList<String> instruments = new ArrayList<>();
-            ArrayList<String> exchanges = new ArrayList<>();
-            ArrayList<String> percentChanges = new ArrayList<>();
-            ArrayList<String> prices = new ArrayList<>();
-            ArrayList<String> instrumentNames = new ArrayList<>();
 
-            for(TickerWithExchange ticker:e){
+        ArrayList<String> instruments = new ArrayList<>();
+        ArrayList<String> exchanges = new ArrayList<>();
+        ArrayList<String> percentChanges = new ArrayList<>();
+        ArrayList<String> prices = new ArrayList<>();
+        ArrayList<String> instrumentNames = new ArrayList<>();
+
+
+
+
+            for (TickerWithExchange ticker :opportunities[0]) {
                 instruments.add(ticker.getInstrument().toString());
 
                 exchanges.add(ticker.getExchange().toString().split("#")[0]);
@@ -162,33 +140,29 @@ public class MainActivity2 extends AppCompatActivity {
             recyclerViewTop2.getAdapter().notifyDataSetChanged();
 
             Toast.makeText(this,getString(R.string.finish),Toast.LENGTH_SHORT).show();
-        });
 
-        //Mettre les éléments dans des ArrayList pour la deuxieme partie du recyclerView
-        lowestPercentage.observe(this, e->{
 
-            ArrayList<String> instruments = new ArrayList<>();
-            ArrayList<String> exchanges = new ArrayList<>();
-            ArrayList<String> percentChanges = new ArrayList<>();
-            ArrayList<String> prices = new ArrayList<>();
-            ArrayList<String> instrumentNames = new ArrayList<>();
+            ArrayList<String> instrument = new ArrayList<>();
+            ArrayList<String> exchange = new ArrayList<>();
+            ArrayList<String> percentChange = new ArrayList<>();
+            ArrayList<String> price = new ArrayList<>();
+            ArrayList<String> instrumentName = new ArrayList<>();
 
-            for(TickerWithExchange ticker: e){
-                instruments.add(ticker.getInstrument().toString());
+            for(TickerWithExchange ticker: opportunities[1]) {
+                instrument.add(ticker.getInstrument().toString());
 
-                exchanges.add(ticker.getExchange().toString().split("#")[0]);
+                exchange.add(ticker.getExchange().toString().split("#")[0]);
 
-                percentChanges.add(Double.toString(ticker.getPercentChange()));
+                percentChange.add(Double.toString(ticker.getPercentChange()));
 
-                prices.add(Double.toString(ticker.getPriceInUSD()));
+                price.add(Double.toString(ticker.getPriceInUSD()));
 
-                instrumentNames.add(ticker.getName());
+                instrumentName.add(ticker.getName());
             }
 
             myAdapterBottom2 = new MyAdapter2(instruments, exchanges, percentChanges, prices, instrumentNames);
             recyclerViewBottom2.setLayoutManager(new LinearLayoutManager(this));
             recyclerViewBottom2.setAdapter(myAdapterBottom2);
             recyclerViewBottom2.getAdapter().notifyDataSetChanged();
-        });
+        }
     }
-}
