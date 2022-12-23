@@ -1,7 +1,5 @@
 package com.example.projetfinal;
 
-import static android.content.Intent.EXTRA_RETURN_RESULT;
-
 import static com.example.projetfinal.Options_activity.SHARED_PREFS;
 import static com.example.projetfinal.Options_activity.SWITCH1;
 import static com.example.projetfinal.Options_activity.SWITCH2;
@@ -10,20 +8,20 @@ import static com.example.projetfinal.Options_activity.SWITCH4;
 import static com.example.projetfinal.Options_activity.SWITCH5;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.MenuItemCompat;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
+import android.util.Log;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,6 +30,8 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import androidx.appcompat.widget.SearchView;
+
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.knowm.xchange.currency.Currency;
@@ -56,9 +56,8 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerViewBottom = null;
     private MyAdapter myAdapterTop, myAdapterBottom;
 
-    private ListView listView;
-    private List<String> name = null;
-    private ArrayAdapter<String> arrayAdapter;
+    ArrayAdapter<String> arrayAdapter;
+
     private ArrayList<TickerWithExchange>[] opportunities;
     private Registry registry;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -78,9 +77,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        listView=findViewById(R.id.listview1);
-        arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,name);
-      //  listView.setAdapter(arrayAdapter);
+        arrayAdapter=new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
 
         Intent intent = getIntent();
 
@@ -168,13 +165,54 @@ public class MainActivity extends AppCompatActivity {
         //action qui crée le menu
         //faire l'action de crée seulement un fois que l'utilisateur ait clicker sur le search icon
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        menu.findItem(R.id.action_search).setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem menuItem) {
+
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem menuItem) {
+                Log.i("Retour","done");
+
+                ListView listView=findViewById(R.id.listview1);
+                listView.setAlpha(0);
+
+                TextView titreHighest=findViewById(R.id.titreHighest);
+                TextView titreLowest=findViewById(R.id.titreLowest);
+
+                titreHighest.setVisibility(View.VISIBLE);
+                titreLowest.setVisibility(View.VISIBLE);
+                recyclerViewBottom.setVisibility(View.VISIBLE);
+                recyclerViewTop.setVisibility(View.VISIBLE);
+
+                return true;
+            }
+        });
+
+        searchView.setAlpha(1);
         activityMenu = menu;
-        searchView.setOnClickListener(new View.OnClickListener() {
+
+        searchView.setOnSearchClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View view) {
+               Log.i("fonction","load");
 
-               SearchView searchView;
-               searchView = (SearchView) menuItem.getActionView();
+               ListView listView=findViewById(R.id.listview1);
+               listView.setAlpha(1);
+
+               TextView titreHighest=findViewById(R.id.titreHighest);
+               TextView titreLowest=findViewById(R.id.titreLowest);
+
+               titreHighest.setVisibility(View.GONE);
+               titreLowest.setVisibility(View.GONE);
+               recyclerViewBottom.setVisibility(View.GONE);
+               recyclerViewTop.setVisibility(View.GONE);
+
+               SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+
+
                searchView.setQueryHint("Search...");
 
                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -185,6 +223,7 @@ public class MainActivity extends AppCompatActivity {
 
                    @Override
                    public boolean onQueryTextChange(String newText) {
+
                        arrayAdapter.getFilter().filter(newText);
 
                        return false;
@@ -193,6 +232,27 @@ public class MainActivity extends AppCompatActivity {
                });
            };
        });
+
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                Log.i("Retour","done");
+
+                ListView listView=findViewById(R.id.listview1);
+                listView.setAlpha(0);
+
+                TextView titreHighest=findViewById(R.id.titreHighest);
+                TextView titreLowest=findViewById(R.id.titreLowest);
+
+                titreHighest.setVisibility(View.VISIBLE);
+                titreLowest.setVisibility(View.VISIBLE);
+                recyclerViewBottom.setVisibility(View.VISIBLE);
+                recyclerViewTop.setVisibility(View.VISIBLE);
+
+                return false;
+            }
+        });
+       activityMenu = menu;
         //quand l'utilisateur sort du search bar, la listview doit se supprimer et laisser place au recyclerView
         return super.onCreateOptionsMenu(menu);
     }
@@ -257,13 +317,12 @@ public class MainActivity extends AppCompatActivity {
         allCurrencies = registry.getAllCurrencies();
 
         allCurrencies.observe(this, e->{
-            if (name == null){
-                name = new ArrayList<>();
-            }
+
+            ListView listView;
+            List<String> name=new ArrayList<>();
 
             for (Currency currency : e){
                 name.add(currency.toString());
-                name.add(currency.getDisplayName());
             }
             setOnClickListener();
             // search bar
@@ -272,9 +331,11 @@ public class MainActivity extends AppCompatActivity {
             // dans le recyclerview, on veut chercher dans une base de données textes que tu as sous format string
             // donc quand tu fais ton query, tu veux tout enlever et mettre le list view
 
-            // listView = findViewById(R.id.listview);
-            // arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, name);
-            // listView.setAdapter(arrayAdapter);
+            listView=findViewById(R.id.listview1);
+            arrayAdapter=new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, name);
+            listView.setAdapter(arrayAdapter);
+
+            listView.setAlpha(0);
 
             activityMenu.findItem(R.id.action_search).getActionView().setClickable(true);
         });
