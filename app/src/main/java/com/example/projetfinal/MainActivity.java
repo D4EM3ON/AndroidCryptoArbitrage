@@ -76,6 +76,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /**
+         * déclaration d'un nouveau arrayAdapter
+         */
         arrayAdapter=new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
         Intent intent = getIntent();
 
@@ -143,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
         };
     }
     //part for menu
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
