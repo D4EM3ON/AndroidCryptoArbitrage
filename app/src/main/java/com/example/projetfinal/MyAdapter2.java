@@ -10,10 +10,37 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+/**
+ * The type My adapter 2.
+ */
 public class MyAdapter2  extends RecyclerView.Adapter<MyAdapter2.MyViewHolder> {
 
-    ArrayList<String> instruments = null, exchanges = null, percentChanges = null, prices = null, instrumentNames = null;
+    /**
+     * The Instruments.
+     */
+    ArrayList<String> instruments = null, /**
+     * The Exchanges.
+     */
+    exchanges = null, /**
+     * The Percent changes.
+     */
+    percentChanges = null, /**
+     * The Prices.
+     */
+    prices = null, /**
+     * The Instrument names.
+     */
+    instrumentNames = null;
 
+    /**
+     * Instantiates a new My adapter 2.
+     *
+     * @param s1 the instruments
+     * @param s2 the exchanges
+     * @param s3 the percent changes
+     * @param s4 the prices
+     * @param s5 the instrument names
+     */
     public MyAdapter2(ArrayList<String> s1, ArrayList<String> s2, ArrayList<String> s3, ArrayList<String> s4, ArrayList<String> s5){
         this.instruments = s1;
         this.exchanges = s2;
@@ -44,10 +71,28 @@ public class MyAdapter2  extends RecyclerView.Adapter<MyAdapter2.MyViewHolder> {
     public int getItemCount() {
         return instruments.size();
     }
+
+    /**
+     * MyViewHolder , to hold the view
+     */
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
-        TextView instrument, nameCurrency, percentage, price, exchange;
+        /**
+         * The Instrument.
+         */
+        TextView instrument, /**
+         * The Name currency.
+         */
+        nameCurrency, /**
+         * The Percentage.
+         */
+        percentage, price, exchange;
 
+        /**
+         * Instantiates a new My view holder.
+         *
+         * @param itemView the item view
+         */
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
 

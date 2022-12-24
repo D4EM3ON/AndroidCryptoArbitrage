@@ -27,6 +27,9 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * The type Main activity 2.
+ */
 public class MainActivity2 extends AppCompatActivity {
 
     private RecyclerView recyclerViewTop2 = null;
@@ -41,7 +44,10 @@ public class MainActivity2 extends AppCompatActivity {
     private long startTime = System.currentTimeMillis();
     private int aa, bb, cc, dd, ff;
 
-    ArrayList<ArrayList<String>> opportunities;
+    /**
+     * The Opportunities.
+     */
+    private ArrayList<ArrayList<String>> opportunities;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
